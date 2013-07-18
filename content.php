@@ -14,13 +14,18 @@ class content
  {
 	// page know how to display content, so there should be no html/css here.
 	// format - id to update, content to place -> id,content
-	return "<div class='content bgbox' id=".get_class($this)."> Error: tab - ".$_GET['tab'].$this->GetMain()." Should not be displayed, please ignore this issue.</div>";
-//:<div class='content' id=".get_class($this).">content : $this->main</div>"; 
+	// Send JSON down, page can parse and add to DOM, or eval JS
+	return 'node = {"tn":"div",
+		"attr":{"id":"'.get_class($this).'", "class":"content bgbox"}, 
+		"children": [{"tn":"text","text":"Error: tab - "},'.$this->GetMain().',{"tn":"text","text":"Should not be displayed, please ignore this issue."}]
+		}';
+//	return "<div class='content bgbox' id=".get_class($this)."> Error: tab - ".$_GET['tab'].$this->GetMain()." Should not be displayed, please ignore this issue.</div>";
  }
 
  function GetMain()
- {
-	return "<div class=title>$this->main</div>";
+ {	//return 0;
+	return '{"tn":"div","attr":{"class":"title"},"children":[{"tn":"text","text":"'.$_GET['tab'].$this->main.'"}]}';
+//	return "<div class=title>$this->main</div>";
  }
 }
 
@@ -33,8 +38,4 @@ if(isset($_GET['tab']))
 	$ToReturn = new content(); 
 	echo $ToReturn;
  }
-
-
-
-
 ?>

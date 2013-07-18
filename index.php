@@ -37,7 +37,7 @@ else {
 <div class='toptab'><? $Game->MenuOutput(); ?> 	
 
 	</div>
-<img class=hidden id=loading src=./pix/loading_big_.gif height=20 width=20>
+<img class=hidden id=loading src=./pix/loading_.gif height=20 width=20 alt=loading />
 </div>
 <?php }
 echo '<script type="text/javascript" src="js/onready.jquery.js"></script>'; // this is needed for 'normal' functionality.

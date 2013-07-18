@@ -9,11 +9,11 @@ private $user, $Game;
 
 	if($_GET['Logout'] == 'true')
 	 { unset($_SESSION['user']); }
-	else if(isset($_POST['user']))
+	else if(isset($_POST['_user']))
 	 { 
-	  $note = $this->VerifyUser($_POST['user'], $_POST['pwd']);
+	  $note = $this->VerifyUser($_POST['_user'], $_POST['pwd']);
 	  if($note == 1)
-	   { $_SESSION['user'] = $_POST['user'];}
+	   { $_SESSION['user'] = $_POST['_user'];}
 	 } 
 	 if(isset($_SESSION['user']))
 	 { 
@@ -54,7 +54,7 @@ function VerifyUser($user, $pwd)
         { $info['note'] = 'No reason supplied'; }
 
 	    return $note = 'Your username or ip address has been banned for the following reason: ' .
-            $info['note'] . '.<br><br>You can discuss or appeal against this ban in the forums.';
+            $info['note'] . '.<br /><br />You can discuss or appeal against this ban in the forums.';
 	    }
 	// if verified continue
 
