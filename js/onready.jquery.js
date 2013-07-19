@@ -7,7 +7,7 @@
 	$.ajax(
 	   {
 		url: "./content.php?tab=" + Get,
-		success:function(data) { $("#PageContainer").append(jsonToHtml(data)); $("#"+Get).show(); }
+		success:function(data) { evalJSON(data); $("#"+Get).show(); }
 	   }
 	  ); //** END OF default page selection**//
 
@@ -30,8 +30,8 @@
 		  {	
 			//$(".content").hide(); // this is not needed if all content arrives hidden
 			if(data.indexOf('id=login') == -1)
-			{ tag = jsonToHtml(data); //console.log(tag);
-			$("#PageContainer").append(tag);
+			{ evalJSON(data);
+//			$("#PageContainer").append(tag);
 //			$("#PageContainer").append(data); // this is deprecated <- use JSONtoHTML to parse content
 			$("#loading").hide();
 			$("#"+tab).show(); // content arrives hidden, then this sets the display 
@@ -66,22 +66,32 @@
 
 }); //**END of document.ready**//
 
-function jsonToHtml(JSON){ console.log('json:'+ JSON); //console.log(eval(JSON));
-	var node = eval(JSON);
-	var tag = document.createElement(node.tn);
-
-	if(node.children) {
-	for(var i = 0; i < node.children.length; i++) {
-	if(node.children[i].tn == 'text') tag.appendChild(document.createTextNode(node.children[i].text));
-	else tag.appendChild(jsonToHtml(node.children[i]));
-	 }
-	} 
-	if(node.attr) {
-	 for(var key in node.attr) {
-	  tag.setAttribute(key, node.attr[key]);
-	 }	 
+function evalJSON(data){ console.log(data);
+	node = JSON.parse(data); //console.log('node: '+node+' nodeArray '+nodeArray); /*Note, JSON data should include a node array.*/
+	for(var i = 0; i < node.length; i++)
+		{ tag = jsonToHtml(node[i]); if(tag) $("#PageContainer").append(tag);} /*where to attach could be contained in the JSON*/
 	}
+function jsonToHtml(node){
+	if(node.tn != 'script')
+	{
+		var tag = document.createElement(node.tn);
+		if(node.children) {
+		for(var i = 0; i < node.children.length; i++) {
+		if(node.children[i].tn == 'text') tag.appendChild(document.createTextNode(node.children[i].text));
+		else tag.appendChild(jsonToHtml(node.children[i]));
+		 }
+		} 
+		if(node.attr) {
+		 for(var key in node.attr) {
+		  tag.setAttribute(key, node.attr[key]);
+		 }	 
+		}
 	return tag;
+	}
+	else {
+		if(node.attr.js) { eval(node.attr.js); }  
+		//Extras();
+	}
 };
 
 //	var ShiftDown = false; // event.shiftKey <- provided by default.
@@ -124,7 +134,7 @@ $(document).ajaxComplete(function() // parse returned data and update relevant i
   }
  );
 */
-
+/*
 function Extras(){
 //	$('.Dragable').mousemove(function(event) {console.log('mouse')});
 
@@ -134,8 +144,8 @@ function Extras(){
 			var data=event.dataTransfer.getData("Text");
 			event.target.appendChild(document.getElementById(data).cloneNode(true));
 			});
-	$(".DropTarget").bind("dragover", function (event){event.preventDefault();});*/
-};
+	$(".DropTarget").bind("dragover", function (event){event.preventDefault();});*//*
+};*/
 
 
  	

@@ -22,11 +22,22 @@ class Technology extends content
 	$DesignNode->addchild("br");
 	$ColumnleftNode = &$DesignNode->addchild("div")->addattr("id","columnleft");
 //	$ColumnleftNode->addattr("id","columnleft");
-	$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable")->addattr("id","Red");
-	$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable")->addattr("id","Blue");
-	$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable")->addattr("id","Yellow");
+	$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable")->addattr("id","Red")->addattr("draggable","true");
+	$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable")->addattr("id","Blue")->addattr("draggable","true");
+	$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable")->addattr("id","Yellow")->addattr("draggable","true");
 	$DesignNode->addchild("div")->addattr("class","DropTarget")->addattr("id","DesignCanvas");
-	return 'node='.$Node;
+
+	$Script = new htmlphp('script');
+	$Script->addattr('js','	$(".Dragable").click(function(event){ console.log("clicked dragable"); $(".Dragable").css("cursor","crosshair") });
+	$(".DropTarget").bind("drop",function (event){
+			event.preventDefault(); 
+			var data=event.dataTransfer.getData("Text");
+			event.target.appendChild(document.getElementById(data).cloneNode(true));
+			});
+	$(".DropTarget").bind("dragover", function (event){event.preventDefault();});');
+
+//	$('.Dragable').css('cursor','crosshair' ) });// cursor modification is cool, may have to use it elsewhere...
+	return '['.$Node.','.$Script.']';
 /*	return 'node = {
 		"tagName":"div",
 		"className":"content hidden bgbox",
