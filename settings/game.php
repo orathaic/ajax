@@ -89,8 +89,8 @@ class ColonyWars extends Game
  <meta name="keywords" content="free browser based mmorpg, free text based game, internet rpg game" />
  
 	<link rel="shortcut icon" href="pix/ajax.ico" />
-	<script type="text/javascript" src="js/jquery-1.9.1.min.js" /></script>
-	<script type="text/javascript" src="js/common.js" /></script>
+	<script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="js/common.js"></script>
 	<script type="text/javascript">var Menu = new Array(); <? foreach($this->Menu as $i => $MenuItem){ echo " Menu[$i] ='$MenuItem';";} ?></script>
 <?//	<script type="text/javascript" src="js/ajax.js" />
 //	<script type="text/javascript" src="js/clay.min.js" />

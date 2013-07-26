@@ -14,11 +14,11 @@ body
 
 #PageContainer
 {
- position:top;
+ position:relative;
  text-align: left;
  width: 800px;
  height: 640px;
- padding:0px;
+/* padding:0px;*/
  margin: auto;
  clear:both;
  overflow:auto;
@@ -79,7 +79,11 @@ body
  float:right;
 }
 
-.content {float:left;}
+.content 
+{
+ float:left;
+ position:relative;
+}
 
 a {font-weight:bold;}
 a:link {color:#cccccc;}
@@ -154,12 +158,34 @@ a.content, .content input, div.AddAbove
 
 .quote {font-style:italic;}
 
+.CloseButton 
+{
+ float:right;
+ margin:10px;
+}
+
+#NewDesignForm
+{
+ margin:auto;
+ width:704px;
+ height:562px;
+ z-index:3;
+ position:absolute;
+ top:0px;
+ left:0px;
+ background-color: rgba(1, 1, 1, .80);
+ border-radius:10px;
+}
+
+#NewShipForm {clear:both; }
+
 #DesignCanvas
 {
  height:480px;
  width:640px;
  border:1px solid #ddd;
- float:right; 
+ float:right;
+ position:relative; 
 }
 
 #columnleft
@@ -170,13 +196,24 @@ a.content, .content input, div.AddAbove
 
 .DesignUnit
 {
- height:32px;
- width:32px;
+ height:20px;
+ width:20px;
  border:1px solid #ddd;
 /* background-color:#111;*/
 }
 
-#Red {background-color:#f00;}
-#Blue {background-color:#00f;}
-#Yellow {background-color:#ff0;}
+#Red {background-color:#F00;}
+#Blue {background-color:#00F;}
+#Yellow {background-color:#FF0;}
+
+.DesignGrid
+{
+ height:20px;
+ width:20px;
+ display: inline-block;
+/* background-color:#fff;*/
+/* visibility:hidden; */
+/* border:1px solid #fff;*/
+margin-bottom: -4px;
+}
 

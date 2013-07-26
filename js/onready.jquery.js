@@ -48,25 +48,29 @@
 	$(document).keydown(function(key){ switch(key.which) 
 						{
 						//	case 16: ShiftDown = true; break; // shift
-							case 9 : key.preventDefault(); break; // tab
-							//default : console.log(key.which); break;
+						//	case 9 : key.preventDefault(); break; // tab
+						//	default : console.log(key.which); break;
 						}
 				} );
 	$(document).keyup(function(key){ switch(key.which)
 						{// loops through items in menu - forward for tab, backwards for shift tab.
-							case 9 : var i = Menu.indexOf(Get); j = Menu.length-1; 
-							if(event.shiftKey) i--; else i++; 
-							if(i > j) i = 0; else if(i<0) i = j; // console.log('tab pressed - shift '+ShiftDown); 
-							var toGet = Menu[i]; //alert('get '+toGet+ ' i:' +i);
+							case 37 : var i = Menu.indexOf(Get); j = Menu.length-1; i--; if(i > j) i = 0; else if(i<0) i = j;var toGet = Menu[i]; //alert('get '+toGet+ ' i:' +i);
 							$('#Menu'+toGet).trigger('click');	
-							break; // tabup  
+							break; // leftup 
+							case 39 : var i = Menu.indexOf(Get); j = Menu.length-1; i++; if(i > j) i = 0; else if(i<0) i = j;var toGet = Menu[i]; //alert('get '+toGet+ ' i:' +i);
+							$('#Menu'+toGet).trigger('click');	
+							break; // rightup
 						//	case 16: ShiftDown = false; break; 	
 						}
 				}); //**END of Keybindings **//
 
+/*	$(document).mousemove(function(event){ 
+    $("span").text("X: " + event.pageX + ", Y: " + event.pageY); 
+  });
+*/
 }); //**END of document.ready**//
 
-function evalJSON(data){ console.log(data);
+function evalJSON(data){// console.log(data);
 	node = JSON.parse(data); //console.log('node: '+node+' nodeArray '+nodeArray); /*Note, JSON data should include a node array.*/
 	for(var i = 0; i < node.length; i++)
 		{ tag = jsonToHtml(node[i]); if(tag) $("#PageContainer").append(tag);} /*where to attach could be contained in the JSON*/
@@ -106,64 +110,4 @@ function jsonToHtml(node){
 	  --leftmouseDown; //console.log('mouse event'+leftmouseDown);
 	}); */
 
-/*
-$(document).ajaxComplete(function() // parse returned data and update relevant info.
-  { // alert('Triggered ajaxComplete handler.');
-	$(".Expand").click(function(event){
-		$('#'+this.name).toggle(); //	alert('clicked a content input button: '+$('#'+this.value)); 
-						// event.relatedTarget.currentTarget
- 	   });
-	
-	$(".AddAbove").hover(function(event) {
-	 	$('#'+this.name).css({'background-color':$(this).css('background-color')}); 
-	  });
 
-	$(".AddAbove").click(function(event){
-		//var toAdd = $('#'+this.name).detach();
-		//$(this).append($('#'+this.name).detach());
-		var SetPosition = $(this).offset();
-		SetPosition.left += parseInt($(this).css('width').replace('px','')) 
-			+ parseInt($(this).css('padding-right').replace('px',''));
-		//alert('width ='+$(this).css('width')+ ' offset ='+$(this).offset().left+' SetPosition.left ='+SetPosition.left);
-		$('#'+this.name).css({zIndex:0,position:'fixed',left:SetPosition.left,top:SetPosition.top,
-		//'background-color':$(this).css('background-color') 
-		});	
-		$('#'+this.name).toggle(); //	alert('clicked a content input button: '+$('#'+this.value));
- 	   });
-	 $('.toghide').click( function(){$('#'+this.value).toggle()} );
-  }
- );
-*/
-/*
-function Extras(){
-//	$('.Dragable').mousemove(function(event) {console.log('mouse')});
-
-	$('.Dragable').click(function(event){ console.log('clicked dragable'); $('.Dragable').css('cursor','crosshair' ) });
-/*	$(".DropTarget").bind("drop",function (event){
-			event.preventDefault(); 
-			var data=event.dataTransfer.getData("Text");
-			event.target.appendChild(document.getElementById(data).cloneNode(true));
-			});
-	$(".DropTarget").bind("dragover", function (event){event.preventDefault();});*//*
-};*/
-
-
- 	
-/*
-/* This should be done via JSON instead. */
-// new way of doing things, i'm not sure this is the right place to do this. but it'll have to do.			
-//			  	 split the data as it is returned, but i'm not sure why this is a good idea...
-/*			dataArray = data.split(',', 64);
-			  for(var i =0; i < dataArray.length; i++)
-				{
-				 var temp = dataArray[i].split(':',3); if(temp.length < 3 )
-				 {
-				  var id = temp[0]; var val = temp[1];
-
-				  alert("id:"+id+" val:"+val);
-				  				  $("#"+id).html(val); //alert('adding div '+i);
-				 }
-				 else {alert('error on data call'); return;}
-				} 
-			//alert(tab+ 'loaded. with L='+ $("#"+tab).length+" ok?\n"+ data);
-*/
