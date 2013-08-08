@@ -6,8 +6,8 @@ class content
 {
  function __construct()
  {
-	$this->main = 'Default contents';
-	$this->game = new Colonywars();
+	$this->Main = 'Default contents';
+	$this->Game = new Colonywars();
 	return;
  }
  function __toString()
@@ -30,13 +30,31 @@ class content
  }
 }
 
+require_once './settings/game.info.php';
+$Game = new Colonywars(); 
+if($Game->Account->GetUsername() == '')
+ {echo $Game->AskForLogin(); echo '</div>'; exit();}
+
 if(isset($_GET['tab']))
  {  
 	@include_once "./content/".$_GET['tab'].".php";
-	if(class_exists($_GET['tab']))
-	$ToReturn = new $_GET['tab']();  
-	else 
-	$ToReturn = new content(); 
+
+	switch($_GET['return'])
+	{
+		case "html": if(class_exists($_GET['tab']) && method_exists($_GET['tab'], 'toHtml')) 
+		{$LoadDesign = new $_GET['tab']; $ToReturn = $LoadDesign->toHtml();}
+		else $ToReturn = "<div class='CloseButton'>X</div><div class=error><br /> No html method found, or class !exists</div>";
+		break;
+
+		case "json": // fall through
+		default:		
+
+		if(class_exists($_GET['tab']))
+		$ToReturn = new $_GET['tab']();  
+		else 
+		$ToReturn = new content(); 
+		break;
+	}
 	echo $ToReturn;
  }
 ?>

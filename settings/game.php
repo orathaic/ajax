@@ -8,12 +8,13 @@ function __construct() {
 	 $this->db_user = '';
 	 $this->db_pass = '';
 	 $this->db_table = '';
-	 $this->server = '';
+	 $this->Server = 'Main';
 	 $this->Menu = array('Menu');
 	}
 
-public function notice($notice, $header = false, $style = 1)
-    {
+public
+	function notice($notice, $header = false, $style = 1)
+	{
 
         $ToReturn .= '<table class="notice' . $style . '" width="600">';
 
@@ -24,33 +25,39 @@ public function notice($notice, $header = false, $style = 1)
         $ToReturn .= '<tr class="notice"><td>' . $notice . '</td></tr></table><br /><br />';
 	return $ToReturn;
     }
-function MenuOutput()
-{
- foreach($this->Menu as $i => $MenuItem) {echo "<input id='Menu$MenuItem' type='button' value='$MenuItem' name='tab=$MenuItem&parentid=PageContainer' />";} // Button($MenuItem); 
-}
+
+	function MenuOutput()
+	{
+	 foreach($this->Menu as $i => $MenuItem) {echo "<input id='Menu$MenuItem' type='button' value='$MenuItem' name='tab=$MenuItem&parentid=PageContainer' />";} // Button($MenuItem); 
+	}
 
 	function GetName()
 	{
 	 return $this->Name;
 	}
-	function head()
+
+	function Head()
 	{}
-	function connection()
-	{ 
-         switch ($this->server)
+	function Connection()
+	{
+		switch ($Server)
          {
 
             default:
                 $this->db_user = $this->db_table = 'colony_tmain'; // connects to the database
                 break;
          }
-         mysql_connect("localhost", $this->db_user, $this->db_pass) or die(mysql_error());
-         mysql_select_db($this->db_table) or die('Unable to select database!');
-	}
+         $this->mysqli = new mysqli("localhost", $this->db_user, $this->db_pass, $this->db_table); 
+		if (mysqli_connect_errno()) {
+    		printf("Connect failed: %s\n", mysqli_connect_error());
+    		exit();
+			}
+//         $mysqli->select_db() or die('Unable to select database!');
+		}
 function AskForLogin($error=NULL)
 { //$this->Head();
 
-        $ToReturn .= 	'
+        $ToReturn = 	'
 		<div class="content bgbox"><div class=quote>"War is merely the continuation of policy by other means." </div> - Carl von Clausewitz: On War</div> 
 		<div id=login class=bgbox><form method="post" action="' . $_SERVER['PHP_SELF'].'">';
 
@@ -89,14 +96,15 @@ class ColonyWars extends Game
  <meta name="keywords" content="free browser based mmorpg, free text based game, internet rpg game" />
  
 	<link rel="shortcut icon" href="pix/ajax.ico" />
-	<script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+ 	<link rel='stylesheet' type='text/css' href='./styles/default.css' />
+	<script type="text/javascript" src="js/jquery-1.10.2.js"></script>
 	<script type="text/javascript" src="js/common.js"></script>
 	<script type="text/javascript">var Menu = new Array(); <? foreach($this->Menu as $i => $MenuItem){ echo " Menu[$i] ='$MenuItem';";} ?></script>
 <?//	<script type="text/javascript" src="js/ajax.js" />
 //	<script type="text/javascript" src="js/clay.min.js" />
 //	<script type="text/javascript" src="js/clay_func.js" />
+// 	<script type="text/javascript" src="js/jq-lint.js"></script>
 ?>
- 	<link rel='stylesheet' type='text/css' href='./styles/default.css' />
 </head>
 	<?php
 }
@@ -105,29 +113,57 @@ class ColonyWars extends Game
 function GetUser()
 {
 	$this->Account = new Player($this);
-
 }
 
 function __construct() {
-        $this->name = 'Colony-Wars';	
+	$this->name = 'Colony-Wars';	
 //	 $url = 'http://www.colony-wars.com';
 
-	 $this->db_user = 'colony_main';
-	 $this->db_pass = 'stuff';
-	 $this->db_table = 'colony_main';
+	$this->db_user = 'colony_main';
+	$this->db_pass = 'stuff';
+	$this->db_table = 'colony_main';
 	$this->backgroundimage = "../pix/main_background2.jpg";
 	// $bg_image = 'background="../pix/header_star_' . rand(0, 4) . '.jpg"';
 	// $lvl5tech = 4;
-	 $this->alliance_size = 10;
+//	$this->alliance_size = 10;
 //	$this->Account = new Player($this); // does all the verification stuff
 	$this->Menu = array('SpacePort', 'Jobcentre', 'Explore', 'Junk-bar', 'Technology');
-   }/*
-$settings['sign_ups'] = 1950;
-$settings['alliance_size'] = 10;
-$settings['logins'] = 'on';
-$settings['level5tech'] = 4;
-*/
+	$this->Connection();
+	$this->GetUser();
+   }
 
+function SaveShipDesign($JSON,$DesignName) 
+	{
+	 $mysqli = $this->mysqli;
+	 $query = "SELECT * FROM cw_ship_design WHERE Username = '".$this->Account."' AND DesignName = '".$mysqli->real_escape_string($DesignName)."' ";
+	 if($mysqli->query($query)->num_rows  > 0)
+				{
+				 $query = "UPDATE cw_ship_design SET DesignJSON ='".$mysqli->real_escape_string($JSON)."'
+				 WHERE Username = '".$this->Account."' AND DesignName = '".$mysqli->real_escape_string($DesignName)."'";
+				} 
+	else		{
+				 $query = "INSERT INTO cw_ship_design (Username, DesignName, DesignJSON)
+				 VALUES ('".$this->Account."','".$mysqli->real_escape_string($DesignName)."','".$mysqli->real_escape_string($JSON)."')"; 
+				} 
+	 if(!$mysqli->query($query)) return 'Error saving design - Query: '.$query; else return 1;	
+	}
+
+
+function GetDesignList() {
+	 $mysqli = $this->mysqli;
+		$query = "SELECT DesignName FROM cw_ship_design WHERE Username = '{$this->Account}'";
+		$result = $mysqli->query($query);
+		while($tmp = $result->fetch_array()) {$List[] = $tmp['DesignName'];}
+		return $List; //array(); array('w','b');
+	} 
+function GetDesignJSON($DesignName)
+	{
+	$mysqli = $this->mysqli;
+	$query = "SELECT DesignJSON FROM cw_ship_design WHERE Username = '{$this->Account}' AND DesignName = '".$mysqli->real_escape_string($DesignName)."' LIMIT 1";
+	$result = $mysqli->query($query);
+	$resultobj = $result->fetch_object();
+	return $resultobj->DesignJSON;
+	}
 }
 
 ?>

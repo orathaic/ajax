@@ -1,9 +1,7 @@
 <?php
 session_start();
-$MyPath = "../";
+
 require_once './settings/game.info.php';
-//require_once 'OldFunctions.php';
-//require_once '../settings.php';
 
 $Game = new Colonywars(); 
 // asks for login if session is not setup
@@ -14,27 +12,22 @@ $Game = new Colonywars();
 {echo $DirandPage[$i]." <br />";}*/
 
 $Game->Head(); // outputs page head 
-
-$Game->connection();
-$Game->GetUser();
-
+//echo $Game->Account->GetUsername(); exit();
 ?>
 <body>
 
-
-
 <br />
 <div id=PageContainer>
-<?	
-if($Game->Account->getusername() == '')
+<? 
+if($Game->Account->GetUsername() == '')
  {echo $Game->AskForLogin(); echo '</div>'; exit();}
 else {
 ?>
-<div id=logout class=bgbox> Hi <? echo $Game->Account->getusername();?>, <a href=?Logout=true>Logout</a>?</div><br />
+<div id=logout class=bgbox> Hi <span id=GetOptions><? echo $Game->Account->getusername();?></span>, <a href=?Logout=true>Logout</a>?</div><br />
 <!-- <div id='canvas'> </div>
 -->
 
-<div class='toptab'><? $Game->MenuOutput(); ?> 	
+<div id='TopTab'><? $Game->MenuOutput(); ?> 	
 
 	</div>
 <img class=hidden id=loading src=./pix/loading_.gif height=20 width=20 alt=loading />

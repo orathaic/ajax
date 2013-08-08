@@ -6,7 +6,7 @@ class Technology extends content
  function __construct()
  {
 	parent::__construct();
-	$this->main = 'Tech - Canvas test';
+	$this->Main = 'Tech - Canvas test';
 	return;
  }
  
@@ -17,16 +17,42 @@ class Technology extends content
 	$Node->addchild("br");
 	$Node->addchild("div")->addattr("id","Research")->addattr("class","hidden")->addtext("This is a stub for the research tab.");
 	$DesignNode = &$Node->addchild('div')->addattr("id","Design");
-    $DesignNode->addchild('input')->addattr('type','button')->addattr('id',"newship")->addattr("value","New");
-	$DesignNode->addchild('input')->addattr('type','button')->addattr('onclick',"alert('Loading - none')")->addattr("value","Load");
-	$DesignNode->addchild('input')->addattr('type','button')->addattr('onclick',"alert('Saving - none')")->addattr("value","Save");
+    $DesignNode->addchild('input')->addattr('type','button')->addattr('id',"NewShip")->addattr("value","New");
+	$DesignNode->addchild('input')->addattr('type','button')->addattr('id',"OpenLoadDesignForm")->addattr("value","Load");
+	$DesignNode->addchild('input')->addattr('type','button')->addattr('id',"Save")->addattr("value","Save");
+	$DesignNode->addchild('div')->addattr('class','Right HelpText')->addattr('id','DesignHelp')->addtext('?');
+	$TestDesignSpan = &$DesignNode->addchild('span')->addattr('class','Right hidden')->addattr('id','DesignTesting');
+	$TestDesignSpan->addchild('input')->addattr('type','button')->addattr('id',"EnergyDisplay")->addattr("value","Show Energy");
+	$TestDesignSpan->addchild('input')->addattr('type','button')->addattr('id',"O2Display")->addattr("value","Show O2");
+	$TestDesignSpan->addchild('input')->addattr('type','button')->addattr('id',"HeatDisplay")->addattr("value","Show Heat");
+	$TestDesignSpan->addchild('input')->addattr('type','button')->addattr('id',"TestDesign")->addattr("value","Test Design");
+
+	$LoadDesignForm = &$DesignNode->addchild("div")->addattr("id","LoadDesignFormContainer")->addattr("class","hidden");
+
+	$HelperTextContainerNode = &$DesignNode->addchild("div")->addattr("id","HelperTextContainer")->addattr("class","hidden");
+	$HelperTextContainerNode->addchild("div")->addtext("X")->addattr("class","CloseButton");
+	$HelperTextNode = &$HelperTextContainerNode->addchild("div")->addattr("id","HelperText");
+	$HelperTextNode->addtext("Ship design: Ships are made up of three types of components: Hull ")->addchild('img')->addattr('src','./pix/Hull.png');
+	$HelperTextNode->addtext(', Corridor ')->addchild('img')->addattr('src','./pix/Room.png');
+	$HelperTextNode->addtext(', and Systems ')->addchild('img')->addattr('src','./pix/System.png');
+	$HelperTextNode->addtext(', ')->addchild('img')->addattr('src','./pix/PowerSupply.png');
+	$HelperTextNode->addtext(', ')->addchild('img')->addattr('src','./pix/OxygenGen.png');
+
+
+	$HelperTextNode->addchild('p')->addtext("Each component has it's own O2, Heat and Energy value, these will flow into the neighbouring components (4 nearest neighbours only - 6 in 3d)");
+	$HelperTextNode->linebreak()->addtext("Some components are better at allowing this flow. Corridors for O2, Hull for Heat and Energy.");
+	$HelperTextNode->linebreak()->addtext("Be");
+
 	$DesignNode->addchild("br");
 	$ColumnleftNode = &$DesignNode->addchild("div")->addattr("id","columnleft");
-	$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable")->addattr("id","Red")->addattr("draggable","true");
-	$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable")->addattr("id","Blue")->addattr("draggable","true");
-	$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable")->addattr("id","Yellow")->addattr("draggable","true");
+	$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable Hull")->addattr("id","Hull")->addattr("draggable","false");
+	$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable Room")->addattr("id","Room")->addattr("draggable","false");
+	$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable System")->addattr("id","System")->addattr("draggable","false");
+	$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable OxygenGen")->addattr("id","OxygenGen")->addattr("draggable","false");
+	$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable PowerSupply")->addattr("id","PowerSupply")->addattr("draggable","false");
+
+	$DesignNode->addchild("div")->addattr("class","hidden")->addattr("id","SimData");
 	$DesignNode->addchild("div")->addattr("class","DropTarget")->addattr("id","DesignCanvas");
-//->addchild("span")->addattr("class","DesignGrid");
 
 	$DesignBgDiv =	&$DesignNode->addchild("div")->addattr("id","NewDesignForm")->addattr("class","hidden");
 	$DesignBgDiv->addchild("div")->addtext("X")->addattr("class","CloseButton");
@@ -42,42 +68,17 @@ class Technology extends content
 	$NewShipForm->addchild('br');
 	$NewShipForm->addchild('input')->addattr('type','button')->addattr('value','Create New Design')->addattr('id','SubmitDesignName');
 
+$jsString = file_get_contents('./js/TechDesign.js');
+if($jsString)
+{
+//	$jsString = str_replace('"',"'",$jsString);
 	$Script = new htmlphp('script');
-	$Script->addattr('js',/*var GridEle = $(".DesignGrid"); var total = (640/20)*(480/20 +1) -1;
-				for(var i=0;i < total;i++){$(GridEle).clone().appendTo("#DesignCanvas")  }*/
-				'$("#newship").click(function() {$("#NewDesignForm").show(200);});
-				$("#SubmitDesignName").click( function(){ 
-								$("#TechHeader").text("Design Name: "+$("#DesignNameText").val());
-								ObjDesign = new ShipDesign( $("#DesignNameText").val() );//DO SOMETHING! 
-								$("#NewDesignForm").hide(200); 
-								$("#NewShipForm").trigger("reset");
-				});
-				$(".CloseButton").click(function() {$(this).parent().hide(200)});
-				$(".TextInput").focus(function() {if($(this).val() == "...") $(this).val("")});
-				$(".Dragable").bind("touchstart",function (event){alert("touch event@:"+event)})
-	//			$(".Dragable").click(function(event){ $(".Dragable").css("cursor","crosshair") });
-				$(".Dragable").bind("dragstart",function (event){
-					dataTransfer = event.originalEvent.dataTransfer;
-					dataTransfer.setData("Text",event.target.id);
-				});
-				$(".DropTarget").bind("drop",function (event){
-					event.preventDefault(); var Zed = 2;
-					var top = event.originalEvent.pageY, left = event.originalEvent.pageX; //console.log("top " + event.originalEvent.pageY+ " canvas.top "+$("#DesignCanvas").offset().top +" left "+event.originalEvent.pageX + " canvas.left "+$("#DesignCanvas").offset().left );
-					top = top - $("#DesignCanvas").offset().top - 5; left = left - $("#DesignCanvas").offset().left - 5;
-					top = top - top%20; left = left - left%20;
-					var data=event.originalEvent.dataTransfer.getData("Text");
-					ObjDesign.AddComponent( (left/20),(top/20),Zed,$("#"+data).css("background-color") );
-					ObjDesign.ReDrawComponents(Zed);
-		//			$("#"+data).clone().appendTo($("#DesignCanvas")).css({"position":"absolute","border":"0px","top":top+"px","left":left+"px"});
-					//$(event.target).css("background-color","green");
-					/*$(event.target).css("background-color",$("#"+data).css("background-color"));*/
-					});
-				$(".DropTarget").bind("dragover", function (event){event.preventDefault();});');
-// 768 20x20 pixel elements in a 640*400 pixel element
-//	$('.Dragable').css('cursor','crosshair' ) });// cursor modification is cool, may have to use it elsewhere...
-/* //appendChild(document.getElementById(data).cloneNode(true)); */
-	return '['.$Node.','.$Script.']';
-
+	$Script->addattr('js', $jsString);
+}
+//$Script = str_replace('\t','',$Script);
+//$Script = str_replace('\n','',$Script);
+	return "[$Node,$Script]";
+//echo $jsString;
  }
 }
 

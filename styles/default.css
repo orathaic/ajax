@@ -131,9 +131,9 @@ a.content, .content input, div.AddAbove
  border-radius:10px;
 } 
 
-.content input:hover, .content a:hover , .AddAbove div:hover{background-color: rgba(10, 10, 70, .60);}
+.content input:hover, .content a:hover,.AddAbove div:hover, #DesignHelp:hover{background-color: rgba(10, 10, 70, .60);}
 
-.toptab a, .toptab input
+#TopTab a, #TopTab input
 {
  text-decoration:none;
  font: bold 18px Verdana;
@@ -149,7 +149,7 @@ a.content, .content input, div.AddAbove
  border-radius:10px;
 }
 
-.toptab input:hover, .toptab a:hover, .toptab input:focus
+#TopTab input:hover, #TopTab a:hover, #TopTab input:focus
 {
  background:#bbb;
  color:#ddd;
@@ -158,13 +158,14 @@ a.content, .content input, div.AddAbove
 
 .quote {font-style:italic;}
 
-.CloseButton 
+.CloseButton, .ReloadButton 
 {
  float:right;
- margin:10px;
+ margin-top:10px;
+ margin-right:10px;
 }
 
-#NewDesignForm
+#NewDesignForm, #HelperTextContainer, #LoadDesignFormContainer
 {
  margin:auto;
  width:704px;
@@ -177,7 +178,7 @@ a.content, .content input, div.AddAbove
  border-radius:10px;
 }
 
-#NewShipForm {clear:both; }
+#NewShipForm, #HelperText, #LoadDesignForm {clear:both; }
 
 #DesignCanvas
 {
@@ -186,12 +187,33 @@ a.content, .content input, div.AddAbove
  border:1px solid #ddd;
  float:right;
  position:relative; 
+ background-image:url(../pix/grid.png);	
 }
 
 #columnleft
 {
  margin:auto;
  float:left;
+}
+
+.Right { float:right;}
+
+.HelpText
+{
+ display:table;
+ vertical-align:middle;
+ text-align: center;
+ border-radius:50%;
+ width: 20px;
+ height: 20px;
+}
+
+#HelperTextContainer {  background-color: rgba(100, 100, 0, .70);
+}
+
+
+#DesignHelp {
+  background-color: rgba(70, 70, 10, .60);
 }
 
 .DesignUnit
@@ -202,18 +224,25 @@ a.content, .content input, div.AddAbove
 /* background-color:#111;*/
 }
 
-#Red {background-color:#F00;}
-#Blue {background-color:#00F;}
-#Yellow {background-color:#FF0;}
-
-.DesignGrid
+#SimData {
+ position:absolute;
+ z-index:1;
+ left:180px;
+ top:0px;
+ border-radius:10px;
+ padding-left:5px;
+ padding-right:5px;
+ background-color: rgba(10,10,10,0.7);
+}
+.ShipElement
 {
  height:20px;
  width:20px;
- display: inline-block;
-/* background-color:#fff;*/
-/* visibility:hidden; */
-/* border:1px solid #fff;*/
-margin-bottom: -4px;
+ position:absolute;
 }
 
+.Hull {background-image:url(../pix/Hull.png);}
+.Room {background-image:url(../pix/Room.png);}
+.System {background-image:url(../pix/System.png);}
+.OxygenGen {background-image:url(../pix/OxygenGen.png);}
+.PowerSupply {background-image:url(../pix/PowerSupply.png);}

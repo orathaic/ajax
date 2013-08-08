@@ -8,13 +8,13 @@ Project - colony-wars: ajax
 
 Tasks: 
 > R&D - design page:
- > Load from DB/Save to DB
-	> Drag&drop items for construction - in HTML. 
-	> Convert HTML elements back to JSON.
+ > Load from DB/Save to DB - DONE
+	> Drag&drop items for construction - in HTML. - DONE 
+	> Convert HTML elements back to JSON. - DONE
 
  > Edit design, add item, total cost, total weight, total heat sink, 
-   - Rooms, Armour, Equipment - position(s)
-   - Connections for Air, Power, Heat, 
+   - Rooms, Armour, Equipment - position(s) - DONE
+   - Connections for Air, Power, Heat, - DONE
 
 > Test in combat simulation vs other designs
 
