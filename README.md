@@ -1,26 +1,27 @@
 
 Playing with ajax tech - learning some css, jquery, html5, and json. 
-Backended with php(4?) and mysql.
+Backended with php(5) and mysql.
 
 Project - colony-wars: ajax 
 > Overview - browser based grand strategy, social 4x game.
-	- sci-fi themed rpg/strategy game, inspired by Planeterium/FTL/Master of Orion/Homeworld/Imperium Galactica 
+	- sci-fi themed rpg/strategy game, inspired by Planeterium/FTL/Master of Orion/Minecraft/Imperium Galactica 
 
 Tasks: 
 > R&D - design page:
- > Load from DB/Save to DB - DONE
-	> Drag&drop items for construction - in HTML. - DONE 
-	> Convert HTML elements back to JSON. - DONE
+- edit names of ship before saving.
+- add layering for proper 3d designs
+- fix bug with duplicate elements on same square
+- add pan option for canvas. 
+- ship stats (cost, total mass, etc)
+- default designs should be available to load
 
- > Edit design, add item, total cost, total weight, total heat sink, 
-   - Rooms, Armour, Equipment - position(s) - DONE
-   - Connections for Air, Power, Heat, - DONE
+-- help (sub)page needs more detail.
 
 > Test in combat simulation vs other designs
+- battle simulator 'single player' 10 level combat trials.
+>> Versus 1 hawk: 3 predator drones: 1 punisher...
 
-> 
-
->>> Outstanding Tasks.
+>> Outstanding Tasks.
 	password recovery (securly?)
 	account activation
 	account creation
