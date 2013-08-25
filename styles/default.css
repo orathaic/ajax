@@ -85,6 +85,13 @@ body
  position:relative;
 }
 
+#Technology
+{
+ max-width:664px;
+ max-height:522px;
+
+}
+
 a {font-weight:bold;}
 a:link {color:#cccccc;}
 a:visited {color:#aaaaaa;}
@@ -179,6 +186,7 @@ a.content, .content input, div.AddAbove
 }
 
 #NewShipForm, #HelperText, #LoadDesignForm {clear:both; }
+#HelperText { padding:3px; text-align:justify;}
 
 #DesignCanvas
 {
@@ -198,14 +206,15 @@ a.content, .content input, div.AddAbove
 
 .Right { float:right;}
 
-.HelpText
+input.HelpText
 {
- display:table;
- vertical-align:middle;
+ /*display:table;*/
+ /*vertical-align:middle;*/
  text-align: center;
- border-radius:50%;
+ /*border-radius:50%;*/
  width: 20px;
  height: 20px;
+ padding:0px;
 }
 
 #HelperTextContainer {  background-color: rgba(100, 100, 0, .70);
@@ -214,6 +223,9 @@ a.content, .content input, div.AddAbove
 
 #DesignHelp {
   background-color: rgba(70, 70, 10, .60);
+ position:absolute;
+ top:17px;
+ left:660px;
 }
 
 .DesignUnit

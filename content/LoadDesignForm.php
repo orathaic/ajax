@@ -21,7 +21,7 @@ class LoadDesignForm extends content
  {
 	$Option = $this->Game->GetDesignList();	
 	
-	$ToReturn = "<div class='CloseButton'>X</div><div class='ReloadButton'>&#x21bb;</div>
+	$ToReturn = "<div class='CloseButton'>X </div><div class='ReloadButton'>&#x21bb;</div>
 	<form class='bgbox' id='LoadDesignForm'>
 	User: {$this->Game->Account->GetUsername()} <br />	
 	Select Design <select name=DesignName>"; 

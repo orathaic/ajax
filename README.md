@@ -8,9 +8,9 @@ Project - colony-wars: ajax
 
 Tasks: 
 > R&D - design page:
-- edit names of ship before saving.
+- edit names of ship before saving. - DONE
 - add layering for proper 3d designs
-- fix bug with duplicate elements on same square
+- fix bug with duplicate elements on same square - DONE, needs testing; may be buggy.
 - add pan option for canvas. 
 - ship stats (cost, total mass, etc)
 - default designs should be available to load

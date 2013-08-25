@@ -5,7 +5,7 @@ $Game = new Colonywars();
 if($Game->Account->GetUsername() == '')
  {//echo $Game->AskForLogin(); echo '</div>';
 											 exit();}
-else if(isset($_GET['json']))
+else if(isset($_POST['json']))
 {
 /**
 CREATE  TABLE IF NOT EXISTS cw_ship_design 
@@ -17,7 +17,7 @@ DesignName CHAR(20),
 DesignJSON VARCHAR(65484)
 )
 **/
-echo $Game->SaveShipDesign($_GET['json'],$_GET['name']);	
+echo $Game->SaveShipDesign($_POST['json'],$_POST['name']);	
 }
 
 ?>

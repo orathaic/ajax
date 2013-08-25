@@ -37,6 +37,8 @@ var ShipDesign = function (Name)
 	this.Canvas = $("#DesignCanvas");
 	this.ColourMap = 'none';
 	this.SystemsActive = 0;
+	this.EditMode = false;
+	this.ToPlace = 'none';
 }
 
 ShipDesign.prototype.JSONStringify = function()
@@ -53,15 +55,17 @@ ShipDesign.prototype.Save = function()
 	{ //console.log(this.JSONStringify());
 		$.ajax(
 		{
-		url: "./Upload.php?name="+this.DesignName+"&json="+this.JSONStringify(),
+		type: 'POST',
+		data: {'name':this.DesignName, 'json':this.JSONStringify() } , 
+		url: "./Upload.php",
 		statusCode: {404: function() {$("#PageContainer").append("<div class='error content' id='"+tab+"'>Error: Tab "+tab+" not found</div>"); }},
 		beforeSend: function() {$('#SimData').text('Saving...').show(500);},
 	 	success:function(data) 
 		{ 
-			if(data === '1') $('#SimData').text('Saved').hide(5000);
+			if(data === '1') $('#SimData').text('Saved').hide(1000);
 			else $('#SimData').text(data);
-		} 
-			
+		}, 
+		error: 	function(jqXHR, errorstring ) {$('#SimData').text('Error '+errorstring);}
 
 		});
 		return 'none';
@@ -81,9 +85,34 @@ ShipDesign.prototype.PlaceMode = function(CompType)
 
 ShipDesign.prototype.SetColourMap = function(Stat) { this.ColourMap = Stat;}
 
-ShipDesign.prototype.AddComponent = function(x,y,z,Type) { this.Components.push(new ShipComponent(x,y,z,Type,this)); }
+ShipDesign.prototype.AddComponent = function(x,y,z,Type) { 
+															var i = this.CheckDuplicate(x,y,z);
+															if(i != false || i === 0 ) {
+																this.Components[i].Type = Type; 
+																this.Components[i].InitStats(Type); 
+																//this.Components[i].BreakLinks();
+																//this.Components[i].FindLinks();	
+																return;
+																}														
+															else return this.Components.push(new ShipComponent(x,y,z,Type,this));
+															}
 
-ShipDesign.prototype.MoveComponent = function(x,y,z,id) { this.Components[id].Move(x,y,z); }
+ShipDesign.prototype.MoveComponent = function(x,y,z,id) { 
+															var i = this.CheckDuplicate(x,y,z);
+															if(i != false || i === 0 )
+															{return; }
+															else this.Components[id].Move(x,y,z); 
+														}
+
+ShipDesign.prototype.CheckDuplicate = function(x,y,z) {for(var i=0, l=this.Components.length; i<l; i++)
+															{if (this.Components[i].x == x && this.Components[i].y == y && this.Components[i].z == z ) 
+																{
+																 return i;
+																}
+
+															}
+														 return false;
+														}
 
 ShipDesign.prototype.ReDrawComponents = function(z) 
 	{
@@ -92,7 +121,7 @@ ShipDesign.prototype.ReDrawComponents = function(z)
 	 {
 	  if(this.Components[i].z == z) { this.Components[i].Draw(this.Canvas, i); };  
 	 }
-	 $(".ShipElement").attr("Draggable", true).bind("dragstart",function (event){
+	 if(this.EditMode) $(".ShipElement").attr("Draggable", true).bind("dragstart",function (event){
 					event.originalEvent.dataTransfer.setData("Text",event.target.id);
 				});
 	}
@@ -100,7 +129,7 @@ ShipDesign.prototype.ReDrawComponents = function(z)
 ShipDesign.prototype.Simulate = function() 
 { $('#SimData').show()
  var AverageO2 =0, AverageEnergy = 0, AverageHeat = 0, TotalSystems; 
- for(var k =0; k<1; k++)
+ for(var k =0; k<10; k++)
  { 
  var SumO2 =0, SumE =0; SumH =0; this.SystemsActive = 0; TotalSystems = 0;
  for(var i = 0; i< this.Components.length; i++)
@@ -211,7 +240,7 @@ switch(Type)
 ShipComponent.prototype.FindLinks = function()
 { var CompArray = this.Ship.Components; 
   this.Links.length = 0; /**To reset the Links array to 0 elements**/
-	for(var i=0; i< CompArray.length; i++)
+	for(var i=0, l = CompArray.length; i<l ; i++)
 	 {
 	  if(CompArray[i] !== this) { 
 			if( (Math.abs(CompArray[i].x -this.x)+Math.abs(CompArray[i].y -this.y)+Math.abs(CompArray[i].z-this.z)) == 1)  { 
@@ -265,11 +294,12 @@ ShipComponent.prototype.ColourMapping = function(val)
 
 ShipComponent.prototype.GetLinkLoss = function(stat, MyLevel)
 { var Sum = 0;
-	for(var i =0; i<this.Links.length ; i++) 
+	for(var i =0, l=this.Links.length; i<l; i++) 
 		{
 			Leak = MyLevel*this.Links[i].Stats[stat]['Rate'];
-			this.Links[i].Stats[stat]['Update'] += Leak/4;
+			this.Links[i].Stats[stat]['Update'] += Leak/6;
 			Sum += Leak;
 		}
- return Sum/4; // 6 for maximum number of connections // should be 4 for 2D ships.
+ return Sum/6; // 6 for maximum number of connections // should be 4 for 2D ships.
 }
+
