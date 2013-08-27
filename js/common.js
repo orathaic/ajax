@@ -117,10 +117,12 @@ ShipDesign.prototype.CheckDuplicate = function(x,y,z) {for(var i=0, l=this.Compo
 ShipDesign.prototype.ReDrawComponents = function(z) 
 	{
 	 this.Canvas.empty();
+	var docFragment = document.createDocumentFragment();
 	 for(var i =0; i < this.Components.length; i++)
 	 {
-	  if(this.Components[i].z == z) { this.Components[i].Draw(this.Canvas, i); };  
+	  if(this.Components[i].z == z) { docFragment = this.Components[i].Draw(docFragment, i); };  
 	 }
+	this.Canvas.append(docFragment);
 	 if(this.EditMode) $(".ShipElement").attr("Draggable", true).bind("dragstart",function (event){
 					event.originalEvent.dataTransfer.setData("Text",event.target.id);
 				});
@@ -263,14 +265,14 @@ ShipComponent.prototype.BreakLinks = function()
 }
 
 
-ShipComponent.prototype.Draw = function(Canvas, i)
+ShipComponent.prototype.Draw = function(Fragment, i)
 {	
 	var Bg = this.Stats.BgImage; var MyType = '';
 	if(this.Ship.ColourMap !== 'none') { Bg = this.ColourMapping(this.Stats[this.Ship.ColourMap].Level);  } else {MyType = this.Type}
 //console.log(Bg);
 	var ToAdd = $('<div></div>').attr('id','Component'+i).addClass('ShipElement '+MyType).css({'top':(this.y*20)+'px','left':(this.x*20)+'px','background-color':Bg });
-
-	Canvas.append(ToAdd);
+		Fragment.appendChild(ToAdd[0]); // [0] <- this grabs the DOM element which is inside the jquery wrapper.
+	return Fragment;
 }
 
 ShipComponent.prototype.ColourMapping = function(val)

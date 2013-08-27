@@ -147,11 +147,3 @@ $("div#Design").on("click", "div:not('#columnleft'),input" ,function(event) {
 		});
 
 
-
-
-
-
-
-
-
-

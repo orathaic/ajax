@@ -85,6 +85,29 @@ $("#PageContainer").on('click','div.CloseButton',function() {$(this).parent().hi
 
 }); //**END of document.ready**//
 
+var totalTime = 0;
+
+function TestTime() {
+
+var hz, runs = 0;
+    startTime = new Date;
+
+var IntervalTimer=setInterval( function(){ObjDesign.Simulate(); runs++; totalTime = new Date - startTime; 
+											if(totalTime > 10000) {clearInterval(IntervalTimer); totalTime /= 1000;
+
+																	// period → how long per operation
+																	period = totalTime / runs;
+
+																	// hz → the number of operations per second
+																	hz = 1 / period;
+
+																	console.log("frequency:" +hz+' total runs '+runs);
+																	return true;
+																	} return false;
+							}, 40);
+
+}
+
 function evalJSON(data){// console.log(data);
 	node = JSON.parse(data); //console.log('node: '+node+' nodeArray '+nodeArray); /*Note, JSON data should include a node array.*/
 	for(var i = 0, l=node.length ; i < l; i++)
