@@ -16,8 +16,7 @@ class Technology extends content
 	$Node->addattr('class','content hidden bgbox')->addattr('id',get_class($this))->addchild('span')->addattr('id','TechHeader')->addtext("Tech - Designs");
 	$Node->addchild('span')->addattr('id','NameHeader')->addattr('type','text');
 	$Node->addchild('span')->addattr('id','ZedIndexHeader')->addattr('type','text');
-	$Node->addchild("br");
-	$Node->addchild("div")->addattr("id","Research")->addattr("class","hidden")->addtext("This is a stub for the research tab.");
+	$Node->linebreak()->addchild("div")->addattr("id","Research")->addattr("class","hidden")->addtext("This is a stub for the research tab.");
 	$DesignNode = &$Node->addchild('div')->addattr("id","Design");
     $DesignNode->addchild('input')->addattr('type','button')->addattr('id',"NewShip")->addattr("value","New");
 	$DesignNode->addchild('input')->addattr('type','button')->addattr('id',"OpenLoadDesignForm")->addattr("value","Load");
@@ -42,7 +41,6 @@ class Technology extends content
 	$TestDesignSpan->addchild('img')->addattr('id',"XYpan")->addattr("src","./pix/pan.png");
 
 
-//	$LoadDesignForm = &$DesignNode->addchild("div")->addattr("id","LoadDesignFormContainer")->addattr("class","hidden"); <- now added by the design form button
 	$CombatTestContainer = &$DesignNode->addchild("div")->addattr("id","CombatTestContainer")->addattr("class","hidden");
 	$CombatTestContainer->addchild("div")->addtext("X")->addattr("class","CloseButton");
 

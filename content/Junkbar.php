@@ -15,9 +15,12 @@ class Junkbar extends content
 		$JunkBarNode->addattr('class','content hidden bgbox')->addattr('id',get_class($this));
 		$JunkBarNode->addtext('Junk-Bars Wish List')->linebreak();
 		$Wishlist = & $JunkBarNode->addchild('ul');
-		$Wishlist->addchild('li')->addtext('Public Chat channel.');
+		$Wishlist->addchild('li')->addtext('Public chat channel/im');
+		$Wishlist->addchild('li')->addtext('Bar-room brawl.');
 		$Wishlist->addchild('li')->addtext('Notice board.');
 		$Wishlist->addchild('li')->addtext('Private chat.');
+		$Wishlist->addchild('li')->addtext('Barter');
+		$Wishlist->addchild('li')->addtext('Uniforms');
 		$Wishlist->addchild('li')->addtext('Player Status/rewards.');
 
 		return $this->BuildJSONArray($JunkBarNode);

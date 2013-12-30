@@ -17,7 +17,13 @@ class Explore extends content
 		$Wishlist = & $ExploreNode->addchild('ul');
 		$Wishlist->addchild('li')->addtext('IPX (two week) solo missions');
 		$Wishlist->addchild('li')->addtext('Local space (ship-to-ship) navigation');
-		$Wishlist->addchild('li')->addtext('Station/Planet navigation (on foot)');
+		$Activitylist = & $Wishlist->addchild('li')->addtext('Station/Rocks navigation (on foot)')->addchild('ul');
+		$Activitylist->addchild('li')->addtext('Harvest');
+		$Activitylist->addchild('li')->addtext('Construction');
+		$Activitylist->addchild('li')->addtext('Full PvP');
+		$Activitylist->addchild('li')->addtext('Fuel drop');
+		$Activitylist->addchild('li')->addtext('Way-points');
+
 		$Wishlist->addchild('li')->addtext('Large scale map');
 
 		return $this->BuildJSONArray($ExploreNode);

@@ -15,11 +15,21 @@ class Missions extends content
 		$MissionNode->addattr('class','content hidden bgbox')->addattr('id',get_class($this));
 		$MissionNode->addtext('Missions Wish List')->linebreak();
 		$Wishlist = & $MissionNode->addchild('ul');
-		$Wishlist->addchild('li')->addtext('NPC missions to protect the Empire/Rebels/IPX/Science Institute.');
+		$Wishlist->addchild('li')->addtext('Procedurally created missions to find somethign to do.');
+		$NPClist = &$Wishlist->addchild('li')->addtext('NPC missions to protect the Empire/Rebels/IPX/Science Institute.')->addchild('ul');
+		$NPClist->addchild('li')->addtext('goods delivery');
+		$NPClist->addchild('li')->addtext('harvesting');
+		$NPClist->addchild('li')->addtext('search&destroy');
+		$NPClist->addchild('li')->addtext('*infiltrate');
+		$NPClist->addchild('li')->addtext('construction');
+		$NPClist->addchild('li')->addtext('secure comms');
+		$NPClist->addchild('li')->addtext('*\'police action\'');
+		$NPClist->addchild('li')->addtext('theft...');
+
 		$Wishlist->addchild('li')->addtext('Status benefits and ranks for completed jobs.');
 		$Wishlist->addchild('li')->addtext('Player created missions to advance (their) goals.');
 		$Wishlist->addchild('li')->addtext('Player set bounties for \'bad\' behaviour.');
-		$Wishlist->addchild('li')->addtext('Procedurally created missions to find somethign to do.');
+
 
 		return $this->BuildJSONArray($MissionNode);
 	}
