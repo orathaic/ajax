@@ -14,8 +14,8 @@ class Technology extends content
  {
 	$Node = new htmlphp('div','content','PageContainer');
 	$Node->addattr('class','content hidden bgbox')->addattr('id',get_class($this))->addchild('span')->addattr('id','TechHeader')->addtext("Tech - Designs");
-	$Node->addchild('span')->addattr('id','NameHeader')->addattr('type','text');
-	$Node->addchild('span')->addattr('id','ZedIndexHeader')->addattr('type','text');
+	$Node->addchild('span')->addattr('id','NameHeader');//->addattr('type','text');
+	$Node->addchild('span')->addattr('id','ZedIndexHeader');//->addattr('type','text');
 	$Node->linebreak()->addchild("div")->addattr("id","Research")->addattr("class","hidden")->addtext("This is a stub for the research tab.");
 	$DesignNode = &$Node->addchild('div')->addattr("id","Design");
     $DesignNode->addchild('input')->addattr('type','button')->addattr('id',"NewShip")->addattr("value","New");
@@ -38,7 +38,7 @@ class Technology extends content
 	$TestDesignSpan->addchild('input')->addattr('type','button')->addattr('id',"TestDesign")->addattr("value","Test Design");
 	$TestDesignSpan->addchild('div')->addattr('id',"ZIndexPlus")->addtext("+");
 	$TestDesignSpan->addchild('div')->addattr('id',"ZIndexMinus")->addtext("‒");
-	$TestDesignSpan->addchild('img')->addattr('id',"XYpan")->addattr("src","./pix/pan.png");
+	$TestDesignSpan->addchild('img')->addattr('id',"XYpan")->addattr("src","./pix/pan.png")->addattr('alt','Horizontal pan');
 
 
 	$CombatTestContainer = &$DesignNode->addchild("div")->addattr("id","CombatTestContainer")->addattr("class","hidden");
@@ -49,11 +49,11 @@ class Technology extends content
 	$HelperTextContainerNode->addchild("div")->addtext("X")->addattr("class","CloseButton");
 	$HelperTextNode = &$HelperTextContainerNode->addchild("div")->addattr("id","HelperText");
 	$HelperTextNode->addtext("Ship design: Ships are made up of three types of components:")->addchild('br');
-	$HelperTextNode->addtext("Hull ")->addchild('img')->addattr('src','./pix/Hull.png');
-	$HelperTextNode->addtext(', Corridor ')->addchild('img')->addattr('src','./pix/Room.png');
-	$HelperTextNode->addtext(', and Systems ')->addchild('img')->addattr('src','./pix/System.png');
-	$HelperTextNode->addtext(', ')->addchild('img')->addattr('src','./pix/PowerSupply.png');
-	$HelperTextNode->addtext(', ')->addchild('img')->addattr('src','./pix/OxygenGen.png');
+	$HelperTextNode->addtext("Hull ")->addchild('img')->addattr('src','./pix/Hull.png')->addattr('alt','Hull');
+	$HelperTextNode->addtext(', Corridor ')->addchild('img')->addattr('src','./pix/Room.png')->addattr('alt','Corridor');
+	$HelperTextNode->addtext(', and Systems ')->addchild('img')->addattr('src','./pix/System.png')->addattr('alt','System');
+	$HelperTextNode->addtext(', ')->addchild('img')->addattr('src','./pix/PowerSupply.png')->addattr('alt','Power Supply');
+	$HelperTextNode->addtext(', ')->addchild('img')->addattr('src','./pix/OxygenGen.png')->addattr('alt','Oxygen Generator');
 	$HelperTextNode->addtext('.');
 
 	$HelperTextNode->addchild('p')->addtext("Each component has it's own O2, Heat and Energy value, these will flow into the neighbouring components (6 nearest neighbours only - 4 on each side plus 1 each above and below). Extra Decks can be views using the +/- buttons on the right.");

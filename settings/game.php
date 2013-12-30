@@ -87,7 +87,9 @@ class Game
 
 			$DevNode = new htmlphp('div','content','PageContainer');
 			$ListNode =	&$DevNode->addattr('id','DevNode')->addattr('class','loginpg content bgbox')->addtext('Current Task List:')->linebreak()->linebreak()->addchild('ul');
-			$ListNode->addchild('li')->addtext('Client-server interaction(s)')->addchild('ul')->addchild('li')->addattr('style','text-decoration: line-through')->addtext('login verification')->addchild('li')->addtext('logout&state?');
+			$SubList = &$ListNode->addchild('li')->addtext('Client-server interaction(s)')->addchild('ul');
+			$SubList->addchild('li')->addattr('style','text-decoration: line-through')->addtext('login verification');
+			$SubList->addchild('li')->addtext('logout&state?');
 			$ListNode->addchild('li')->addtext('Client Testing.')->addchild('ul')->addchild('li')->addtext('Debug event triggers twice (onload designs).');
 			$ListNode->addchild('li')->addtext('New Tab transition-animations');
 			$ListNode->addchild('li')->addtext('Tech-Design descriptions (db-change)');
@@ -159,8 +161,8 @@ class ColonyWars extends Game
 
 		<script type="text/javascript" src="js/jquery-ui-1.10.3.custom.min.js"></script>
 		<script type="text/javascript" src="js/Client.js"></script>
-		<script type="text/javascript" src="js/common.js"></script>
-	<script type="text/javascript" src="js/Onready.jquery.js"></script>
+<!--		<script type="text/javascript" src="js/common.js"></script> -->
+		<script type="text/javascript" src="js/Onready.jquery.js"></script>
 	</head>
 		<?php
 	}
