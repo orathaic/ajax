@@ -1,7 +1,7 @@
 body
 {
- margin:auto;
- padding:5px;
+ margin:0;
+/* padding:5px;*/
  font-family: Verdana,Helvetica,Ariel;
  font-size: 13px;
  color:#efefef;
@@ -17,16 +17,17 @@ body
  position:relative;
  text-align: left;
  width: 800px;
- height: 640px;
+ height: 610px; /*640? i don't know how big this should be...*/
 /* padding:0px;*/
  margin: auto;
  clear:both;
- overflow:auto;
+ overflow:hidden;
+ word-wrap:break-word;
 /* color:yellow;*/
- padding-top:20px;
- padding-bottom:10px;
- padding-right:40px;
- padding-left:40px;
+ padding-top:15px;
+ padding-bottom:5px;
+ padding-right:25px;
+ padding-left:25px;
  float:none;
 }
 
@@ -47,30 +48,45 @@ body
 {
  background-color: inherit;
 /* border: 3px rgba(70, 70, 70, .70);*/
- padding-top:20px;
+/* padding-top:20px;
  padding-bottom:20px;
  padding-right:20px;
- padding-left:20px;
+ padding-left:20px;*/
  border-radius:10px;
 }
 
-#login
+#login, #Console
 {
- padding-top:40px;
- padding-bottom:40px;
  padding-left:40px;
  text-align: left;
- min-width: 160px;
- height: 320px;
  margin: auto;
  float:right;
  color:yellow;
 }
 
-#logout
+.Console-large
 {
+ height: 320px;
+ width: 160px;
+ padding-top:40px;
+ padding-bottom:40px;
+
+}
+
+.Console-small
+{
+ min-height: 15px;
+ min-width: 160px;
  padding-top:20px;
  padding-bottom:20px;
+
+}
+
+
+#logout, #MenuNode
+{
+/* padding-top:20px;
+ padding-bottom:20px;*/
  color:yellow;
  text-align: left;
  min-width: 160px;
@@ -78,6 +94,10 @@ body
  margin: auto;
  float:right;
 }
+
+.right {float:right; clear:right;}
+.left {float:left; clear:left;}
+.bold {font-weight: bold}
 
 .content 
 {
@@ -89,14 +109,32 @@ body
 {
  max-width:664px;
  max-height:522px;
-
 }
+
+#loading
+{
+ margin:auto;
+ position:absolute;
+ top:0px; bottom:0px; left:0px; right:0px;
+ background-color:rgba(1,1,1,0.75);
+ border-radius:10px;
+ width:66%;
+ height:40%;	
+ z-index:3;
+ overflow:hidden;
+/*text-align ? */
+}
+
+#loadtext {
+ max-height:60px;
+ max-width:200px;
+ }
 
 a {font-weight:bold;}
 a:link {color:#cccccc;}
 a:visited {color:#aaaaaa;}
 a:active {color:#cccccc;}
-a:hover {color:#ffffff;}
+a:hover, span#OpenMenu:hover {color:#ffffff;}
 
 .title {color:yellow;}
 
@@ -110,12 +148,12 @@ a:hover {color:#ffffff;}
 
 a
 {
- text-decoration:underline;
  font-weight:bold;
- color:#fc0;
+ color: #cccccc;
+ text-decoration:underline;
 }
 
-select, textarea, input 
+select, textarea, input, div.EditText
 { 
  background-color: #202020; 
  color: #c0c0c0; 
@@ -140,39 +178,60 @@ a.content, .content input, div.AddAbove
 
 .content input:hover, .content a:hover,.AddAbove div:hover, #DesignHelp:hover{background-color: rgba(10, 10, 70, .60);}
 
-#TopTab a, #TopTab input
+
+#menu 
 {
- text-decoration:none;
- font: bold 18px Verdana;
-/*width:200px;*/
- padding-right:4px;
- padding-left:4px;
+ min-width:450px;
+}
+
+.menuitem 
+{
+ margin:auto;
+ width:200px;
+ height:200px;
  border:2px solid #333;
  color:#222;
  background:#999;
-/*border-radius: 6px;
-    -moz-border-radius: 10px;
-    -webkit-border-radius: 10px; */
  border-radius:10px;
-}
+ padding-right:4px;
+ padding-left:4px;
+ display:inline-block;
 
-#TopTab input:hover, #TopTab a:hover, #TopTab input:focus
-{
- background:#bbb;
- color:#ddd;
- border:2px solid #ddd;
 }
-
 .quote {font-style:italic;}
 
-.CloseButton, .ReloadButton 
+.CloseButton, .ReloadButton, .EditButton 
 {
  float:right;
  margin-top:10px;
  margin-right:10px;
 }
 
-#NewDesignForm, #HelperTextContainer, #LoadDesignFormContainer
+#ZIndexPlus
+{
+	position:absolute;
+	top:60px;
+	left:686px;
+	z-index:1;
+}
+
+#ZIndexMinus
+{
+	position:absolute;
+	top:74px;
+	left:687px;
+	z-index:1;
+}
+
+#XYpan
+{
+	position:absolute;
+	top:93px;
+	left:686px;
+	z-index:1;
+}
+
+#NewDesignForm, #HelperTextContainer, #LoadDesignFormContainer, #CombatTestContainer
 {
  margin:auto;
  width:704px;
@@ -185,8 +244,10 @@ a.content, .content input, div.AddAbove
  border-radius:10px;
 }
 
-#NewShipForm, #HelperText, #LoadDesignForm {clear:both; }
+#NewShipForm, #HelperText, #LoadDesignForm, #DescContainer {clear:both; }
 #HelperText { padding:3px; text-align:justify;}
+
+#SpacePort { margin-left:120px; margin-right:120px; margin-top:30px;}
 
 #DesignCanvas
 {

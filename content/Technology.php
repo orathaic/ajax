@@ -3,18 +3,19 @@
 class Technology extends content
 {
 
- function __construct()
+ function __construct($Game)
  {
-	parent::__construct();
+	parent::__construct(get_class($this),$Game);
 	$this->Main = 'Tech - Canvas test';
 	return;
  }
  
  function __toString()
  {
-	$Node = new htmlphp('div');
-	$Node->addattr('class','content hidden bgbox')->addattr('id',get_class($this))->addchild('span')->addattr('id','TechHeader')->addtext("HEADER");
-	$Node->addchild('span')->addattr('id','NameHeader')->addattr('type','text')->addattr('value','asdf');
+	$Node = new htmlphp('div','content','PageContainer');
+	$Node->addattr('class','content hidden bgbox')->addattr('id',get_class($this))->addchild('span')->addattr('id','TechHeader')->addtext("Tech - Designs");
+	$Node->addchild('span')->addattr('id','NameHeader')->addattr('type','text');
+	$Node->addchild('span')->addattr('id','ZedIndexHeader')->addattr('type','text');
 	$Node->addchild("br");
 	$Node->addchild("div")->addattr("id","Research")->addattr("class","hidden")->addtext("This is a stub for the research tab.");
 	$DesignNode = &$Node->addchild('div')->addattr("id","Design");
@@ -22,10 +23,12 @@ class Technology extends content
 	$DesignNode->addchild('input')->addattr('type','button')->addattr('id',"OpenLoadDesignForm")->addattr("value","Load");
 	$DesignNode->addchild('input')->addattr('type','button')->addattr('id',"Save")->addattr("value","Save");
 	$DesignNode->addchild('input')->addattr('type','button')->addattr('class','Right HelpText')->addattr('id','DesignHelp')->addattr('value','?');
+
 	$DesignNode->addchild('input')->addattr('class','Right')->addattr('type','button')->addattr('id',"EditDesign")->addattr("value","Edit Design");
 
 	$DesignManageSpan = &$DesignNode->addchild('span')->addattr('class','Right')->addattr('id','DesignManager');
 	$DesignManageSpan->addchild('input')->addattr('type','button')->addattr('id',"RenameDesign")->addattr("value","Rename");
+	$DesignManageSpan->addchild('input')->addattr('type','button')->addattr('id','CombatTest')->addattr('value','Combat Test');
 	$DesignManageSpan->addchild('input')->addattr('type','button')->addattr('id',"OpenShareDesign")->addattr("value","Share")->addattr("onclick","alert('Todo: implement design sharing')");
 
 
@@ -34,8 +37,15 @@ class Technology extends content
 	$TestDesignSpan->addchild('input')->addattr('type','button')->addattr('id',"O2Display")->addattr("value","Show O2");
 	$TestDesignSpan->addchild('input')->addattr('type','button')->addattr('id',"HeatDisplay")->addattr("value","Show Heat");
 	$TestDesignSpan->addchild('input')->addattr('type','button')->addattr('id',"TestDesign")->addattr("value","Test Design");
+	$TestDesignSpan->addchild('div')->addattr('id',"ZIndexPlus")->addtext("+");
+	$TestDesignSpan->addchild('div')->addattr('id',"ZIndexMinus")->addtext("‒");
+	$TestDesignSpan->addchild('img')->addattr('id',"XYpan")->addattr("src","./pix/pan.png");
 
-	$LoadDesignForm = &$DesignNode->addchild("div")->addattr("id","LoadDesignFormContainer")->addattr("class","hidden");
+
+//	$LoadDesignForm = &$DesignNode->addchild("div")->addattr("id","LoadDesignFormContainer")->addattr("class","hidden"); <- now added by the design form button
+	$CombatTestContainer = &$DesignNode->addchild("div")->addattr("id","CombatTestContainer")->addattr("class","hidden");
+	$CombatTestContainer->addchild("div")->addtext("X")->addattr("class","CloseButton");
+
 
 	$HelperTextContainerNode = &$DesignNode->addchild("div")->addattr("id","HelperTextContainer")->addattr("class","hidden");
 	$HelperTextContainerNode->addchild("div")->addtext("X")->addattr("class","CloseButton");
@@ -46,9 +56,9 @@ class Technology extends content
 	$HelperTextNode->addtext(', and Systems ')->addchild('img')->addattr('src','./pix/System.png');
 	$HelperTextNode->addtext(', ')->addchild('img')->addattr('src','./pix/PowerSupply.png');
 	$HelperTextNode->addtext(', ')->addchild('img')->addattr('src','./pix/OxygenGen.png');
+	$HelperTextNode->addtext('.');
 
-
-	$HelperTextNode->addchild('p')->addtext("Each component has it's own O2, Heat and Energy value, these will flow into the neighbouring components (4 nearest neighbours only - 6 in 3d)");
+	$HelperTextNode->addchild('p')->addtext("Each component has it's own O2, Heat and Energy value, these will flow into the neighbouring components (6 nearest neighbours only - 4 on each side plus 1 each above and below). Extra Decks can be views using the +/- buttons on the right.");
 	$HelperTextNode->addtext("Systems use up energy, but generate heat. The O2 generator is a special type of system which ");
 	$HelperTextNode->addtext(" creates oxygen for your crew (other systems use up a tiny amount of oxygen when they are working).");
 	$HelperTextNode->addtext(" The PowerSupply (PS) generates energy for other systems to use, but if it is disconnected will build up energy");
@@ -82,15 +92,17 @@ class Technology extends content
 	$NewShipForm->addchild('br');
 	$NewShipForm->addchild('input')->addattr('type','button')->addattr('value','Create New Design')->addattr('id','SubmitDesignName');
 
+//if($_POST['ajax'] != 'true') { $MenuNode = $this->GetMenuNode();}
+
 $jsString = file_get_contents('./js/TechDesign.js');
 if($jsString)
 {
-	$Script = new htmlphp('script');
+	$Script = new htmlphp('script','attachjs');
 	$Script->addattr('js', $jsString);
 } else $Script = '{}';
 //$Script = str_replace('\t','',$Script);
 //$Script = str_replace('\n','',$Script);
-	return "[$Node,$Script]";
+	return $this->BuildJSONArray($Node,$MenuNode,$Script);
  }
 }
 

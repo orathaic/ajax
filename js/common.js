@@ -1,34 +1,57 @@
-function ChangeTab(iID)
-{
-if(iID == '') { iID = location.hash.replace('#','');} else { location.hash = '#'+iID}
-//alert('url-hash is: '+location.hash+'\n iID is: ' +iID  );
-ShowOnly(iID);
-}
+/*### Example from CW to post a form, serialized form data - uses Jquery### */
 
-function ToggleHide(iId)
-{ //alert('toghide '+iId);
- if(document.getElementById(iId).style.display=='block')
-  {document.getElementById(iId).style.display='none'; }
-  else
-  { document.getElementById(iId).style.display='block'; }
-}
+// $(window).on('hashchange', function(){ console.log('jQuery hashchange')}) // ??
 
-function ShowOnly(iId)
-{ var change = false;
-var node = document.getElementById('Parent');
-	var tags=node.getElementsByTagName("*");
-	for (i=0; i<tags.length; i++)
-	{
-		if (tags[i].className=='content hidden') 
- 		{ 
-			if(tags[i].id==iId)
-			{tags[i].style.display='block'; change = true;}
-			else tags[i].style.display='none';
+//** Console/SpacePort Menu Selection  most of this should be moved! **//
+/* $('div#console').on('click', $('input').add('span'), function(event, keycode){ //		console.log( 'key ' + event.which + ' tagName'+event.target.tagName + ' keycode: ' + keycode)
+		if(event.which === undefined && keycode !== undefined) event.which = keycode;  // keycode is passed for by trigger for to correctly simulate events.
+		switch(event.which) // should i be using event.type?, may need to do something with the 'trigger' workaround. 
+		{// loops through items in menu - forward for tab, backwards for shift tab.
+		case 1: // left click		
+			switch(event.target.tagName.toLowerCase())
+			{
+			 case 'span':
+				if((event.target).id == 'OpenMenu')
+				{
+					tab = 'SpacePort'; 
+				}
+				else {break;}
+				Client.ChangeTo(tab); console.log('ChangeTab has been replaced with Client.ChangeTo'); 
+				break;
+			 case 'input': */	//** MENU button ajax**//
+/*			 var tab = event.target.name;
+			 ChangeTab(tab);
+			break;
+			default: console.log(' default left click triggered ');
+			}
+		break;
+		}
+		
+	}); */	//** END of TopTab Menu Selection **//
 
- 		}
- 	} 
- //if(!change) // call get div - create a div for this element and then add it via ajax.
-}
+/*
+var totalTime = 0;
+
+function TestTime() {
+
+var hz, runs = 0;
+    startTime = new Date;
+
+var IntervalTimer=setInterval( function(){ObjDesign.Simulate(); runs++; totalTime = new Date - startTime; 
+											if(totalTime > 10000) {clearInterval(IntervalTimer); totalTime /= 1000;
+
+																	// period → how long per operation
+																	period = totalTime / runs;
+
+																	// hz → the number of operations per second
+																	hz = 1 / period;
+
+																	console.log("frequency:" +hz+' total runs '+runs);
+																	return true;
+																	} return false;
+							}, 40);
+
+}*/
 
 var ShipDesign = function (Name)
 {
@@ -39,6 +62,7 @@ var ShipDesign = function (Name)
 	this.SystemsActive = 0;
 	this.EditMode = false;
 	this.ToPlace = 'none';
+	this.Zed = '2';
 }
 
 ShipDesign.prototype.JSONStringify = function()
@@ -56,13 +80,13 @@ ShipDesign.prototype.Save = function()
 		$.ajax(
 		{
 		type: 'POST',
-		data: {'name':this.DesignName, 'json':this.JSONStringify() } , 
-		url: "./Upload.php",
+		data: {'SaveShipDesign':true,'name':this.DesignName, 'json':this.JSONStringify() } , 
+		url: "./index.php",
 		statusCode: {404: function() {$("#PageContainer").append("<div class='error content' id='"+tab+"'>Error: Tab "+tab+" not found</div>"); }},
 		beforeSend: function() {$('#SimData').text('Saving...').show(500);},
 	 	success:function(data) 
 		{ 
-			if(data === '1') $('#SimData').text('Saved').hide(1000);
+			if(data === '1') $('#SimData').text('Saved.').delay(500).hide(500);
 			else $('#SimData').text(data);
 		}, 
 		error: 	function(jqXHR, errorstring ) {$('#SimData').text('Error '+errorstring);}
@@ -114,18 +138,19 @@ ShipDesign.prototype.CheckDuplicate = function(x,y,z) {for(var i=0, l=this.Compo
 														 return false;
 														}
 
-ShipDesign.prototype.ReDrawComponents = function(z) 
-	{
+ShipDesign.prototype.ReDrawComponents = function() 
+	{ var z = this.Zed;
 	 this.Canvas.empty();
 	var docFragment = document.createDocumentFragment();
 	 for(var i =0; i < this.Components.length; i++)
 	 {
-	  if(this.Components[i].z == z) { docFragment = this.Components[i].Draw(docFragment, i); };  
+	  if(this.Components[i].z <= z) { docFragment = this.Components[i].Draw(docFragment, i, (this.Components[i].z - z) ); };  
 	 }
 	this.Canvas.append(docFragment);
 	 if(this.EditMode) $(".ShipElement").attr("Draggable", true).bind("dragstart",function (event){
 					event.originalEvent.dataTransfer.setData("Text",event.target.id);
 				});
+	 $('#ZedIndexHeader').text(' (deck: '+(z -1)+')');
 	}
 
 ShipDesign.prototype.Simulate = function() 
@@ -176,7 +201,7 @@ for(var i = 0; i< this.Components.length; i++)
  AvgText += ' Avg Heat lvl: ' + Math.round(AverageHeat*100)+'%'
  AvgText += ' Sys Active: '+this.SystemsActive + '/' + TotalSystems;
  $('#SimData').text(AvgText);
- this.ReDrawComponents(2);
+ this.ReDrawComponents();
 }
 
 var ShipComponent = function(x,y,z,Type,Ship)
@@ -265,12 +290,12 @@ ShipComponent.prototype.BreakLinks = function()
 }
 
 
-ShipComponent.prototype.Draw = function(Fragment, i)
+ShipComponent.prototype.Draw = function(Fragment, i, z)
 {	
 	var Bg = this.Stats.BgImage; var MyType = '';
 	if(this.Ship.ColourMap !== 'none') { Bg = this.ColourMapping(this.Stats[this.Ship.ColourMap].Level);  } else {MyType = this.Type}
 //console.log(Bg);
-	var ToAdd = $('<div></div>').attr('id','Component'+i).addClass('ShipElement '+MyType).css({'top':(this.y*20)+'px','left':(this.x*20)+'px','background-color':Bg });
+	var ToAdd = $('<div></div>').attr('id','Component'+i).addClass('ShipElement '+MyType).css({'top':(this.y*20)+'px','left':(this.x*20)+'px', 'z-index':z, 'opacity':  Math.pow(0.5, -z),'background-color':Bg });
 		Fragment.appendChild(ToAdd[0]); // [0] <- this grabs the DOM element which is inside the jquery wrapper.
 	return Fragment;
 }

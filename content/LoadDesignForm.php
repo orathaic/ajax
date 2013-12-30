@@ -3,35 +3,44 @@
 class LoadDesignForm extends content
 {
 
- function __construct()
+ function __construct($Game)
  {
-	parent::__construct();
+	parent::__construct(get_class($this), $Game);
 	$this->Main = 'LoadDesignForm';
 	return;
  }
  
  function __toString()
  {
-	$Node = new htmlphp('div');
-	$Node->addtext('This Node should not be displayed. Please report this #FGED45');
-	return "[$Node]";
- }
+	$LoadDesignNode = new htmlphp('div','ReplaceContent','Design');
+	$LoadDesignNode->addattr('id','LoadDesignFormContainer');//->addattr('class','hidden');
+//	$LoadDesignNode = new htmlphp('div','content','LoadDesignFormContainer');
+	$LoadDesignNode->addchild('div')->addattr('class','CloseButton')->addtext('X');
+	$LoadDesignNode->addchild('div')->addattr('class','ReloadButton')->addtext('↻');
+	$LoadDesignForm = &	$LoadDesignNode->addchild('form');
+	$LoadDesignForm->addattr('class','bgbox')->addattr('id','LoadDesignForm')->addtext("User: {$this->Game->Account->GetUsername()} ")->linebreak();
+	$SelectNode = & $LoadDesignForm->addtext('Select Design ')->addchild('select')->addattr('id','DesignName')->addattr('name','DesignName');
 
- function toHtml()
- {
-	$Option = $this->Game->GetDesignList();	
+	$Option = $this->Game->GetDesignList();
 	
-	$ToReturn = "<div class='CloseButton'>X </div><div class='ReloadButton'>&#x21bb;</div>
-	<form class='bgbox' id='LoadDesignForm'>
-	User: {$this->Game->Account->GetUsername()} <br />	
-	Select Design <select name=DesignName>"; 
 	foreach($Option as $key => $value)
-	{$ToReturn .= "<option>{$value}</option>";}
-	$ToReturn .=	"</select> <br />
-	<input type='button' id='LoadDesign' value='Load Design'> <input type='button' value='Show Details'>
-	</form>";  // thinking about doing some design comparison stuff in tables here!!!
-	return $ToReturn; 
- }
+	{$SelectNode->addchild('option')->addattr('value',$key)->addtext($value);} // key to identify in html without the limits of ID use.
+	$LoadDesignForm->linebreak()->addchild('input')->addattr('type','button')->addattr('id','LoadDesign')->addattr('value','Load Design');
+	$LoadDesignForm->addchild('input')->addattr('type','button')->addattr('id','ShowDesignDetails')->addattr('value','Show Details');
 
+	// thinking about doing some design comparison stuff in tables here!!!
+	$DescriptionNode = & $LoadDesignForm->addchild('div');
+	$DescriptionNode->addattr('id','DescContainer')->addattr('class','hidden')->addchild('div')->addattr('class','CloseButton')->addtext('X');
+	$DescriptionNode->addchild('input')->addattr('type','button')->addattr('value','edit')->addattr('class','EditButton')->addattr('id','EditDescription');
+	$DescriptionNode->linebreak()->linebreak();
+
+	foreach($Option as $key => $value)
+	{
+		$Desc = $this->Game->GetDesignDesc($value); if($Desc == '') $Desc = 'No description available.'; // default value
+		$DescriptionNode->addchild('div')->addattr('class','hidden DesignDesc')->addattr('id',$key."Desc")->addtext($Desc); // key to avoid name conflicts with html ID limits.
+	}
+
+	return "[$LoadDesignNode]";
+ }
 }
 ?>

@@ -7,16 +7,17 @@ private $User, $Game;
 	function __construct($Game, $SetUser = '') 
 	{
 	$this->Game = $Game; 
-	if(isset($_GET['Logout'])) {
-		if($_GET['Logout'] == 'true')
-	 { unset($_SESSION['user']); }  
+	if(isset($_POST['Logout'])) 
+	{
+		if($_POST['Logout'] == 'true')
+		 { unset($_SESSION['user']); }  
 	}
 	else if(isset($_POST['_user']))
 	 {
 	  $note = $this->VerifyUser($_POST['_user'], $_POST['pwd']);
 	  if($note == 1)
 	   { $_SESSION['user'] = $_POST['_user'];}
-		// else output error note
+	  else {$this->Game->note = $note; }
 	 } 
 	 if(isset($_SESSION['user']))
 	 { 
@@ -39,9 +40,10 @@ function VerifyUser($user, $pwd)
 
    // -= FAILURE : Username or Pass wrong, or no account. /*This needs to be fixed, currently errors out*/
 	if ($getMyDetails->num_rows == 0)
-	{ $query = "INSERT INTO cw_failedlogins VALUES(NULL, '" . $_SERVER['REMOTE_ADDR'] ."', '" . $user . "', md5('" . $password . "'))"; 
-	$mysqli->query($query) or die($mysqli->error); 
-	return $note = 'Your username (' . $user .') or password are incorrect, or you do not have a Colony-Wars account.';
+	{
+	$query = "INSERT INTO cw_failedlogins VALUES(NULL, '" . $_SERVER['REMOTE_ADDR'] ."', '" . $user . "', md5('" . $password . "'))"; 
+	if($mysqli->query($query)) {$note = "db error <br />";} 
+	return $note .= 'Your username (' . $user .') or password are incorrect, or you do not have a Colony-Wars account.';
 	}
    // -= FAILURE : Unactivated account. Forward to activation=-
     $memberstatus = $getMyDetails->fetch_field->status;
