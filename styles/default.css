@@ -207,7 +207,7 @@ a.content, .content input, div.AddAbove
  margin-right:10px;
 }
 
-#ZIndexPlus
+.ZIndexPlus
 {
 	position:absolute;
 	top:60px;
@@ -215,7 +215,7 @@ a.content, .content input, div.AddAbove
 	z-index:1;
 }
 
-#ZIndexMinus
+.ZIndexMinus
 {
 	position:absolute;
 	top:74px;
@@ -223,7 +223,7 @@ a.content, .content input, div.AddAbove
 	z-index:1;
 }
 
-#XYpan
+.XYpan
 {
 	position:absolute;
 	top:93px;
@@ -244,12 +244,14 @@ a.content, .content input, div.AddAbove
  border-radius:10px;
 }
 
+.clear,
 #NewShipForm, #HelperText, #LoadDesignForm, #DescContainer {clear:both; }
+
 #HelperText { padding:3px; text-align:justify;}
 
 #SpacePort { margin-left:120px; margin-right:120px; margin-top:30px;}
 
-#DesignCanvas
+#DesignCanvas, #EquipCanvas
 {
  height:480px;
  width:640px;
@@ -294,8 +296,16 @@ input.HelpText
  height:20px;
  width:20px;
  border:1px solid #ddd;
-/* background-color:#111;*/
 }
+.DesignEquip
+{
+ height:20px;
+ width:20px;
+ border:1px solid #ddd;
+ display:inline-block;
+ z-index:3;
+}
+
 
 #SimData {
  position:absolute;
@@ -319,3 +329,5 @@ input.HelpText
 .System {background-image:url(../pix/System.png);}
 .OxygenGen {background-image:url(../pix/OxygenGen.png);}
 .PowerSupply {background-image:url(../pix/PowerSupply.png);}
+
+.WeaponSystem {background-image:url(../pix/WeaponSystem.png);}

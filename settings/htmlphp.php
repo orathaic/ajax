@@ -24,6 +24,16 @@ class htmlphp
 	 $this->children[] = $textnode;
 	 return $this;
 	}
+	function addclass($value)
+	{
+	 $this->attr['class'] = $value;
+	 return $this;
+	}
+	function addid($value)
+	{
+	 $this->attr['id'] = $value;
+	 return $this;
+	}
 	function linebreak()
 	{
 	$this->children[] = new htmlphp('br');
@@ -51,6 +61,7 @@ class calljs
 	 $this->attr[$attribute] = $value;
 	 return $this;
 	}
+
 	function __toString()
 	{
 	 return json_encode($this);

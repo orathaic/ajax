@@ -17,7 +17,19 @@ $("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event) 
 									} break;
 			case 'NewShip' : $("#NewDesignForm").show(200); break;
 			case 'Save' : Client.ObjDesign.Save();  break;
-			case 'CombatTest': $("#CombatTestContainer").show(200); break;
+			case 'CombatTest': 
+				if(typeof(Client.ObjDesign) == 'undefined') {console.log('Error: no design to test'); break;}
+				$("#CombatTestContainer").show(200);
+				Client.ObjDesign.Canvas.empty();
+				Client.ObjDesign.Canvas = $("#EquipCanvas");
+				Client.ObjDesign.ColourMapTo('none');
+				$('#EquipCanvas').droppable();
+				$('#EquipForm .DesignEquip').draggable();
+				break;
+			case 'ExitCombatTest' :
+				Client.ObjDesign.Canvas = $("#DesignCanvas");
+				Client.ObjDesign.ReDrawComponents();
+				break;
 			case 'OpenLoadDesignForm' : 
 			$.ajax(
 			   {
@@ -63,14 +75,6 @@ $("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event) 
 					alert('FEATURE INCOMPLETE, descriptions can\'t be saved at present.');
 				break;
 			case 'TestDesign' : { Client.ObjDesign.TestDesign( $("#TestDesign") ); } break;
-			case 'ZIndexPlus' : { Client.ObjDesign.Zed++; Client.ObjDesign.ReDrawComponents(); } break;
-			case 'ZIndexMinus' : { Client.ObjDesign.Zed--; Client.ObjDesign.ReDrawComponents(); } break;
-			case 'XYpan' : { if( $('#DesignCanvas').css('cursor')	== 'auto' ) {console.log('switching to pan'); // not currently functional
-							$('#DesignCanvas').css('cursor','url(./pix/pan.png),move');
-							$('#DesignCanvas').on('selectstart.pan', function(event) {return false});
-							} else { console.log(' switch to no pan'); $('#DesignCanvas').off('.pan'); $('#DesignCanvas').css('cursor','auto');}
-						}
-						break;
 
 			case 'O2Display' : Client.ObjDesign.ColourMapTo('O2'); break;
 			case 'HeatDisplay' : Client.ObjDesign.ColourMapTo('Heat'); break;
@@ -129,11 +133,30 @@ $("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event) 
 
 						} break;
 			default:  
-			}
+			var TestCSSClasses = new Array('ZIndexPlus','ZIndexMinus','XYpan');	
+			for(var i =0, l = TestCSSClasses.length; i < l; i++)
+				{
+					if($(event.currentTarget).hasClass(TestCSSClasses[i]))
+					switch(TestCSSClasses[i])
+					{
+						case 'ZIndexPlus' : { Client.ObjDesign.Zed++; Client.ObjDesign.ReDrawComponents(); } break;
+						case 'ZIndexMinus' : { Client.ObjDesign.Zed--; Client.ObjDesign.ReDrawComponents(); } break;
+						case 'XYpan' : { if( $('#DesignCanvas').css('cursor')	== 'auto' ) 
+											{console.log('switching to pan'); // not currently functional
+											$('#DesignCanvas').css('cursor','url(./pix/pan.png),move');
+											$('#DesignCanvas').on('selectstart.pan', function(event) {return false});
+											}
+										else { console.log(' switch to no pan'); $('#DesignCanvas').off('.pan'); $('#DesignCanvas').css('cursor','auto');}
+									   }
+						break;
+					}
+				}
+			}			
 		});
 	$(".TextInput").on('focus', function() {if($(this).val() == "...") $(this).val("")}); // is this shared??
 	$("div#Design").on('click',".ReloadButton" ,function() {alert('Reload not implemented.')} );
 	$(".Dragable").on("touchstart",function (event){alert("touch event@:"+event)}); // for touchscreen support!
+
 /* !dragover // i want : event.type, event.which, and event.target, and sometimes event.pageX/Y */
 // CHANGING to jquery UI for drag.
 	$('#Technology').show(200);

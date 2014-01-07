@@ -36,14 +36,24 @@ class Technology extends content
 	$TestDesignSpan->addchild('input')->addattr('type','button')->addattr('id',"O2Display")->addattr("value","Show O2");
 	$TestDesignSpan->addchild('input')->addattr('type','button')->addattr('id',"HeatDisplay")->addattr("value","Show Heat");
 	$TestDesignSpan->addchild('input')->addattr('type','button')->addattr('id',"TestDesign")->addattr("value","Test Design");
-	$TestDesignSpan->addchild('div')->addattr('id',"ZIndexPlus")->addtext("+");
-	$TestDesignSpan->addchild('div')->addattr('id',"ZIndexMinus")->addtext("‒");
-	$TestDesignSpan->addchild('img')->addattr('id',"XYpan")->addattr("src","./pix/pan.png")->addattr('alt','Horizontal pan');
+	$TestDesignSpan->addchild('div')->addattr('class',"ZIndexPlus")->addtext("+");
+	$TestDesignSpan->addchild('div')->addattr('class',"ZIndexMinus")->addtext("‒");
+	$TestDesignSpan->addchild('img')->addattr('class',"XYpan")->addattr("src","./pix/pan.png")->addattr('alt','Horizontal pan');
 
 
 	$CombatTestContainer = &$DesignNode->addchild("div")->addattr("id","CombatTestContainer")->addattr("class","hidden");
-	$CombatTestContainer->addchild("div")->addtext("X")->addattr("class","CloseButton");
+	$CombatTestContainer->addchild("div")->addtext("X")->addattr("class","CloseButton")->addid('ExitCombatTest');
+	$EquipForm = &$CombatTestContainer->addchild("div")->addclass('bgbox clear')->addtext("Equip: ")->addid("EquipForm");
+	$EquipForm->addchild('div')->addclass('DesignEquip Dragable WeaponSystem');
 
+	$EquipForm->addchild('div')->addattr('class',"ZIndexPlus")->addtext("+");
+	$EquipForm->addchild('div')->addattr('class',"ZIndexMinus")->addtext("‒");
+	$EquipForm->addchild('img')->addattr('class',"XYpan")->addattr("src","./pix/pan.png")->addattr('alt','Horizontal pan');
+
+	$EquipForm->addchild('input')->addattr('value','Fight!')->addattr('type','button')->addclass('right');
+
+	$EquipForm->addchild("div")->addattr("class","DropTarget")->addattr("id","EquipCanvas");
+	$EquipForm->addchild("div")->addtext('one.'); // css issue with bgbox - this should be removed once a fix is found.
 
 	$HelperTextContainerNode = &$DesignNode->addchild("div")->addattr("id","HelperTextContainer")->addattr("class","hidden");
 	$HelperTextContainerNode->addchild("div")->addtext("X")->addattr("class","CloseButton");
