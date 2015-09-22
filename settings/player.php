@@ -1,4 +1,4 @@
-<?
+<?php
 
 class Player
 {
@@ -53,7 +53,7 @@ function VerifyUser($user, $pwd)
        return $note = 'ERROR: Your account is not activated.';
     }
     // User banned?
-	$amIBanned = $mysqli->query("SELECT * FROM cw_bans WHERE username = '{$user}' OR ip = '{$_SERVER['REMOTE_ADDR']}' AND confirmer <> '' LIMIT 1") or die($mysqli->error());
+	$amIBanned = $mysqli->query("SELECT * FROM cw_bans WHERE username = '{$user}' OR ip = '{$_SERVER['REMOTE_ADDR']}' AND confirmer <> '' LIMIT 1") or die($mysqli->error);
 	if($amIBanned->num_rows > 0)
 	 {
         $info = mysqli_fetch_assoc($amIBanned);

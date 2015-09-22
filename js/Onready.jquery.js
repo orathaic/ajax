@@ -1,11 +1,13 @@
+
  $(document).ready(function ()
 {	
 	//** default page selection **//
-	Client = new ClientClass();
+	window.Client = new ClientClass();
 	Client.evalJSON( $("#json").text() );
-
-	if(location.hash == '') { InitialState = 'SpacePort';} 
+//console.log( $("#json").text() ); 
+	if(location.hash == '') { InitialState = 'SpacePort'; } 
 	else { InitialState = location.hash.replace('#',''); } 
+//console.log('InitialState '+InitialState)
 	Client.ChangeTo(InitialState);
  //** END OF default page selection**//
 

@@ -1,4 +1,6 @@
-StateClass = function(init) { this.Name = init; } 
+"use strict";
+
+var StateClass = function(init) { /*console.log(this);*/ this.Name = init; } 
 
 StateClass.prototype.EnterState = function() { //console.log('State->EnterState: '+this.Name)
 	var Tab;
@@ -15,7 +17,7 @@ StateClass.prototype.ExitState= function() { $('#'+this.Name).hide(200); }//cons
 StateClass.prototype.Refresh = function() {  console.log('State->RefreshState: '+this.Name) }
 
 
-ClientClass = function ()
+var ClientClass = function()
 {
 	this.State = new StateClass('loading'); // Finite State Machine stuff here.
 	this.PrevState = {};
@@ -30,28 +32,33 @@ ClientClass.prototype.Login = function(Args)
 
 ClientClass.prototype.Logout = function()
 {
-	var RespFunc = '';//function() {return function() {Client.ChangeTo('Login')} }
+	var RespFunc = function() {return function() {Client.ChangeTo('Login')} }
 	Client.ajaxCall('Logout=true',RespFunc);
 }
 
-ClientClass.prototype.ChangeTo = function(NewState, ExtraArgs){ console.log('Client->ChangeTo '+NewState+ ' <- From: ' + this.State.Name + ' '); //console.log(this);
+ClientClass.prototype.ChangeTo = function(NewState, ExtraArgs)
+{ console.log(this);
+	console.log('Client->ChangeTo '+NewState+ ' <- From: ' + this.State.Name + ' '); 
  
-		function FunctionBinder(Client) { return function() { FindAndRunEnterState(Client)}; }
-		function FindAndRunEnterState(Client) { 	
-//			console.log('in find and run: '+NewState);
-			Client.State.ExitState(); 
-			Client.PrevState = Client.State;
+	function FunctionBinder(Client) { return function() { FindAndRunEnterState(Client)}; }
+	function FindAndRunEnterState(Client)
+	{ 	
+//		console.log('in find and run: '+NewState);
+		Client.State.ExitState(); 
+		Client.PrevState = Client.State;
 
-			if(typeof(window[NewState]) === 'function') {Client.State = new window[NewState]();} else {Client.State = new StateClass(NewState);}
-			Client.State.EnterState();
-			Client.State.Name = NewState;
-			location.hash = '#'+Client.State.Name;
-		}
+		if(typeof(window[NewState]) === 'function') 
+		{Client.State = new window[NewState]();} 
+		else {Client.State = new StateClass(NewState);}
+		Client.State.EnterState();
+		Client.State.Name = NewState;
+		location.hash = '#'+Client.State.Name;
+	}
 
 	if(NewState != this.State.Name)
 	{
 		if(( $('#'+NewState)).length == 1)
-		{ console.log(NewState + ' newstate found')
+		{	console.log(NewState + ' newstate found')
 			FindAndRunEnterState(this); 
 		}
 		else
@@ -61,8 +68,9 @@ ClientClass.prototype.ChangeTo = function(NewState, ExtraArgs){ console.log('Cli
 			Client.ajaxCall(SendArgs, FunctionBinder(this, FindAndRunEnterState));
 		}
 	}
-	else {console.log('State not changed');
-			this.State.Refresh();		
+	else 
+	{	console.log('State not changed');
+		this.State.Refresh();		
 	}
 }
 
@@ -74,10 +82,10 @@ ClientClass.prototype.ajaxCall = function (data, ResponceFunc){
 	statusCode: {
 		404: function() {$("#PageContainer").append("<div class='error content' id='"+tab+"'>Error: Tab "+tab+" not found</div>")}
 	},
-	beforeSend: function() { $("#loading").show(); //console.log('Before send: '+data+ ' Client.state.name is : '+Client.State.Name ); console.log(Client)
+	beforeSend: function() { $("#loading").show(); console.log('Before Send: '+data+ ' Client.state.name is : '+Client.State.Name ); //console.log(Client)
 	},
  	success:function(data) 
-	  {	console.log('Success: resp func='+ResponceFunc);
+	  {	console.log('After Send: resp func='+ResponceFunc);
 		Client.evalJSON(data);
 		$("#loading").hide();
 		//$("#"+tab).show(200); // content arrives hidden, then this sets the display 
@@ -93,16 +101,19 @@ ClientClass.prototype.PreventCallback = function() { //console.log('Client->Prev
 
 
 ClientClass.prototype.evalJSON = function(data){ //console.log('eval:' + typeof(data)+ 'data: '+data+' '); 
-	try{node = JSON.parse(data); } catch(err) {console.log(err+ '; node: '+node[i]+' nodeArray '+node); } //*Note, JSON data should include a node array.* /
-	for(var i = 0, l=node.length ; i < l; i++)
-		{
-		 this.HandleNode(node[i], i);
+	try{var node = JSON.parse(data); } catch(err) {console.log(err+ '; data: '+data); } //*Note, JSON data should include a node array.* /
+	try{	
+		for(var i = 0, l=node.length ; i < l; i++)
+			{
+			 this.HandleNode(node[i], i);
+			}
+		return true;
 		}
-	return true;
+	catch(err) {console.log(err);}
 }
 
 ClientClass.prototype.HandleNode = function (node, i){
-	console.log(node);
+//	console.log(node);
 		 switch(node.cmd)
 		 {
 			case 'content': 
@@ -123,7 +134,7 @@ ClientClass.prototype.HandleNode = function (node, i){
 				break;
 			case 'calljs': if(typeof(this[node.func]) == "function") { this[node.func](node.args[0]); } else { console.log('Error: node ['+i+'] - func not found: '+node.func); console.log(node); }
 				
-				break; // May need to use more than just the first arg.
+				break; // May need to use more than just the first arg. ** there is special stuff for handling this in JS ** (maybe)
 			default: console.log('Error: node ['+i+'] - cmd: '+node.cmd); console.log(node); break;
 		 }
 		 //var tag = this.jsonToHtml(node[i]); if(tag) $("#"+node[i].loc).append(tag);

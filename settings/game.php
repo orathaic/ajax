@@ -11,7 +11,7 @@ class Game
 	 $this->Server = 'Main';
 	 $this->Menu = array('Menu');
 
-	 $this->note = NULL; // used for error messages
+	 $this->note = ''; // used for error messages
 	}
 
 	public
@@ -37,13 +37,13 @@ class Game
 	{}
 	function Connection()
 	{
-		switch ($this->Server)
-         {
+		//switch ($this->Server)
+       //  {
 
-            default:
-                $this->db_user = $this->db_table = 'colony_tmain'; // connects to the database
-                break;
-         }
+        //    default:
+                $this->db_user = $this->db_table = 'colony_main'; // connects to the database
+              //  break;
+      //   }
          $this->mysqli = new mysqli("localhost", $this->db_user, $this->db_pass, $this->db_table); 
 		if (mysqli_connect_errno()) {
     		printf("Connect failed: %s\n", mysqli_connect_error());
@@ -89,7 +89,7 @@ class Game
 			$ListNode =	&$DevNode->addattr('id','DevNode')->addattr('class','loginpg content bgbox')->addtext('Current Task List:')->linebreak()->linebreak()->addchild('ul');
 			$SubList = &$ListNode->addchild('li')->addtext('Client-server interaction(s)')->addchild('ul');
 			$SubList->addchild('li')->addattr('style','text-decoration: line-through')->addtext('login verification');
-			$SubList->addchild('li')->addtext('logout&state?');
+			$SubList->addchild('li')->addattr('style','text-decoration: line-through')->addtext('logout&state?');
 			$ListNode->addchild('li')->addtext('Client Testing.')->addchild('ul')->addchild('li')->addtext('Debug event triggers twice (onload designs).');
 			$ListNode->addchild('li')->addtext('New Tab transition-animations');
 			$ListNode->addchild('li')->addtext('Tech-Design descriptions (db-change)');
@@ -119,7 +119,7 @@ class ColonyWars extends Game
 	}
 
 	function GetContent($Tab) {
-	include_once "./content/content.php";
+	require_once "./content/content.php";
 	include_once "./content/".$Tab.".php";
 
 		if(class_exists($Tab))
@@ -178,7 +178,7 @@ class ColonyWars extends Game
 	//	$url = 'http://www.colony-wars.com';
 
 		$this->db_user = 'colony_main';
-		$this->db_pass = 'stuff';
+		$this->db_pass = 'stuff123';
 		$this->db_table = 'colony_main';
 		$this->backgroundimage = "../pix/main_background2.jpg";
 	//	$this->Menu = array('SpacePort', 'Jobcentre', 'Explore', 'Junk-bar', 'Technology');
@@ -205,9 +205,10 @@ class ColonyWars extends Game
 	function GetDesignList() {
 		 $mysqli = $this->mysqli;
 			$query = "SELECT DesignName FROM cw_ship_design WHERE Username = '{$this->Account}'";
-			$result = $mysqli->query($query);
-			while($tmp = $result->fetch_array()) {$List[] = $tmp['DesignName'];}
-			return $List; //array(); array('w','b');
+			if($result = $mysqli->query($query))
+			{while($tmp = $result->fetch_array()) {$List[] = $tmp['DesignName'];}
+			return $List; } //array(); array('w','b');
+			else return 'Error4';
 		} 
 
 	function GetDesignJSON($DesignName)

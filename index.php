@@ -17,11 +17,11 @@ $Game = new Colonywars();
 if($Game->Account->GetUsername() == '')
 	{ $Content = $Game->AskForLogin($Game->note); }
 else if(isset($_POST['tab']) )
-	{$Content = $Game->GetContent($_POST['tab']);}
+	{ $Content = $Game->GetContent($_POST['tab']);}
 else if(isset($_POST['SaveShipDesign']) && $_POST['SaveShipDesign'] == true)
-	{if(isset($_POST['json']) && isset($_POST['name']) ) echo $Game->SaveShipDesign($_POST['json'],$_POST['name']); return;}
+	{ if(isset($_POST['json']) && isset($_POST['name']) ) echo $Game->SaveShipDesign($_POST['json'],$_POST['name']); return;}
 else
-	{ if(isset($_POST['ajax']) && $_POST['ajax'] == 'true' ) {$Content = '[{\'null\'}]';} else {$Content = $Game->GetContent('SpacePort');}
+	{ if(isset($_POST['ajax']) && $_POST['ajax'] == 'true' ) {$Content = 'null';} else {$Content = $Game->GetContent('SpacePort');}
 	}// Default??
 
 echo $Game->SendReturn($Content);

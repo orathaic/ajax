@@ -1,5 +1,6 @@
 $('input#LoginButton').on('click',function() {	
 	Client.Login( $(this.parentNode).serialize() );
+	$('#ErrReply').text('');
 	}
 );
 
@@ -11,7 +12,7 @@ Login.prototype.EnterState = function ()
 		$('#Login')[0].reset();
 		$('.loginpg').show(200);
 		$('#Console').addClass('Console-large').removeClass('Console-small');
-		console.log('Login->EnterState');
+		//console.log('Login->EnterState');
 	}
 
 Login.prototype.ExitState = function () 
@@ -19,11 +20,11 @@ Login.prototype.ExitState = function ()
 		$('.loginpg').hide(200); $('#ErrReply').text(''); 
 		$('#MenuNode').show(200);
 		$('#Console').removeClass('Console-large').addClass('Console-small');
-		console.log('Login->ExitState');
+		//console.log('Login->ExitState');
 	}
 
 Login.prototype.Refresh = function ()
 	{
 	 $('#ErrReply').text('');
-	 $('#Login')[0].reset();	
+	 $('#Login')[0].reset();
 	}
