@@ -261,6 +261,14 @@ a.content, .content input, div.AddAbove
  background-image:url(../pix/grid.png);	
 }
 
+.HighlightBox
+{
+ height:20px;
+ width:20px;
+ position:absolute;
+ /*background-image:url(../pix/pan.png);*/	
+}
+
 #columnleft
 {
  margin:auto;

@@ -85,7 +85,8 @@ class Technology extends content
 
 	$DesignNode->addchild("div")->addattr("class","hidden")->addattr("id","SimData");
 	$DesignNode->addchild("div")->addattr("class","DropTarget")->addattr("id","DesignCanvas");
-
+	$DesignNode->addchild("div")->addattr("class","hidden HighlightBox")->addattr("id","DesignHighligther");
+	
 	$DesignBgDiv =	&$DesignNode->addchild("div")->addattr("id","NewDesignForm")->addattr("class","hidden");
 	$DesignBgDiv->addchild("div")->addtext("X")->addattr("class","CloseButton");
 	$NewShipForm =	&$DesignBgDiv->addchild("form")->addattr("class","bgbox")->addattr("id","NewShipForm");

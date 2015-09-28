@@ -37,13 +37,10 @@ class Game
 	{}
 	function Connection()
 	{
-		//switch ($this->Server)
-       //  {
-
         //    default:
-                $this->db_user = $this->db_table = 'colony_main'; // connects to the database
-              //  break;
-      //   }
+		
+        //        $this->db_user = $this->db_table = 'colony_main'; // connects to the database
+
          $this->mysqli = new mysqli("localhost", $this->db_user, $this->db_pass, $this->db_table); 
 		if (mysqli_connect_errno()) {
     		printf("Connect failed: %s\n", mysqli_connect_error());
@@ -93,6 +90,7 @@ class Game
 			$ListNode->addchild('li')->addtext('Client Testing.')->addchild('ul')->addchild('li')->addtext('Debug event triggers twice (onload designs).');
 			$ListNode->addchild('li')->addtext('New Tab transition-animations');
 			$ListNode->addchild('li')->addtext('Tech-Design descriptions (db-change)');
+			$ListNode->addchild('li')->addtext('fix JSON responce for login timeouts');
 
 			$jsString = file_get_contents('./js/LoginForm.js');
 			if($jsString)
@@ -157,9 +155,9 @@ class ColonyWars extends Game
 		<link rel="shortcut icon" href="pix/ajax.ico" />
 	 	<link rel='stylesheet' type='text/css' href='./styles/default.css' />
 		<script type="text/javascript" src="js/jquery-1.10.2.js"></script>
-<!--		<script type="text/javascript" src="js/jquery.event-trace.js"></script> -->
-
 		<script type="text/javascript" src="js/jquery-ui-1.10.3.custom.min.js"></script>
+<!--		<script type="text/javascript" src="js/jquery.mousewheel.min.js"></script> -->
+
 		<script type="text/javascript" src="js/Client.js"></script>
 <!--		<script type="text/javascript" src="js/common.js"></script> -->
 		<script type="text/javascript" src="js/Onready.jquery.js"></script>
@@ -173,13 +171,14 @@ class ColonyWars extends Game
 		$this->Account = new Player($this);
 	}
 
+
 	function __construct() {
 		$this->name = 'Colony-Wars';	
 	//	$url = 'http://www.colony-wars.com';
 
-		$this->db_user = 'colony_main';
+		$this->db_user = 'colony_ajax';
 		$this->db_pass = 'stuff123';
-		$this->db_table = 'colony_main';
+		$this->db_table = 'colony_ajax';
 		$this->backgroundimage = "../pix/main_background2.jpg";
 	//	$this->Menu = array('SpacePort', 'Jobcentre', 'Explore', 'Junk-bar', 'Technology');
 		$this->Connection();

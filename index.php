@@ -25,8 +25,8 @@ else
 	}// Default??
 
 echo $Game->SendReturn($Content);
-/*
+
 $arr = array_merge(array('BLANK1' => 'POST'), $_POST,array('BLANK2' => 'get'), $_GET,array('BLANK3' => 'session'), $_SESSION,array('BLANK4' => 'server'), $_SERVER,array('BLANK5' => 'apache request headers'), apache_request_headers());
-foreach( $arr  as $key => $value) {$toRet .= "$key - $value <br />";}  */
+foreach( $arr  as $key => $value) {$toRet .= "$key - $value <br />";}  
 //echo $toRet;
 ?>

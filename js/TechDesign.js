@@ -1,4 +1,4 @@
-var Technology = function() {return StateClass('SpacePort');}
+var Technology = function() {return StateClass('Technology');}
 
 Technology.prototype.EnterState = function () { 
 
@@ -99,10 +99,16 @@ $("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event) 
 							$(".DesignUnit", "#Design").attr("draggable","true");
 							$(".Dragable").on('click.design', function(event){ Client.ObjDesign.PlaceMode(event.target.id); $("div#DesignCanvas").css("cursor", $(event.target).css("background-image")+",auto" ) } );
 							$(".Dragable").on("dragstart.design",function (event){ event.originalEvent.dataTransfer.setData("Text",event.target.id); });
+							$("#DesignCanvas").on('mousemove.design', function(event) {
+								var top = event.originalEvent.pageY, left = event.originalEvent.pageX;
+								top = top - $("#DesignCanvas").offset().top; left = left - $("#DesignCanvas").offset().left;
+								top = top - top%20; left = left - left%20;
+								$("#DesignHighligther").css({'top':(top+57)+'px','left':(left+43)+'px', 'z-index':-1, 'opacity':  0.4 ,'background-color':'darkgreen' }).show(200);								
+							})
 							$(".DropTarget", "#Design").on("drop.design",function (event){
 								event.preventDefault(); 
 								var top = event.originalEvent.pageY, left = event.originalEvent.pageX;
-								top = top - $("#DesignCanvas").offset().top + 10; left = left - $("#DesignCanvas").offset().left + 10;
+								top = top - $("#DesignCanvas").offset().top; left = left - $("#DesignCanvas").offset().left;
 								top = top - top%20; left = left - left%20;
 								var data=event.originalEvent.dataTransfer.getData("Text");
 								if( $("#"+data).hasClass("DesignUnit")  )
@@ -125,16 +131,29 @@ $("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event) 
 								Client.ObjDesign.ReDrawComponents();
 							});
 							$(this).attr("value", "\u0298");
+							$(window).on('keypress.DesignKeys', function(event) {
+								if(event.which == 43) { Client.ObjDesign.ChangeZed(1) }// plus
+								else if(event.which == 45) {Client.ObjDesign.ChangeZed(-1) }// minus
+							});
+
+							$("#Technology").on("mousewheel", function(event) {
+								//console.log("mouse wheel - delta ("+ event.originalEvent.deltaX+','+event.originalEvent.deltaY+')');
+								Client.ObjDesign.ChangeZed(event.originalEvent.deltaY);
+								return false;
+							})
+
 						}
 						else if(  $(this).attr("value") == "\u0298" ) 
 						{
 							Client.ObjDesign.EditMode = false;
 							$('#DesignTesting').hide(100);
 							$('#DesignManager').show(100);
-					
+							$(window).off('keypress.DesignKeys');
+							$("#Technology").off("mousewheel");
 							$(".DesignUnit", "#Design").add('.ShipElement',"#DesignCanvas").attr("draggable","false");
 							$(".Dragable").off('.design');
-							$(".DropTarget", "#Design").off(".design"); 
+							$(".DropTarget", "#Design").off(".design");
+							$("#DesignCanvas").off('mousemove.design');
 							$("div#DesignCanvas").css("cursor", "auto" ) ;
 							if( 'IntervalTimer' in window) {clearInterval(IntervalTimer); $("#TestDesign").attr("value","Test Design"); }//stop any current testing // This should not duplicate testdesign function? 
 							$(this).attr("value", "Edit Design");
@@ -149,8 +168,8 @@ $("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event) 
 				if($(event.currentTarget).hasClass(TestCSSClasses[i]))
 				switch(TestCSSClasses[i])
 				{
-					case 'ZIndexPlus' : { Client.ObjDesign.Zed++; Client.ObjDesign.ReDrawComponents(); } break;
-					case 'ZIndexMinus' : { Client.ObjDesign.Zed--; Client.ObjDesign.ReDrawComponents(); } break;
+					case 'ZIndexPlus' : { Client.ObjDesign.ChangeZed(1); } break;
+					case 'ZIndexMinus' : { Client.ObjDesign.ChangeZed(-1); } break;
 					case 'XYpan' : { if( $('#DesignCanvas').css('cursor')	== 'auto' ) 
 										{console.log('switching to pan'); // not currently functional
 										$('#DesignCanvas').css('cursor','url(./pix/pan.png),move');
@@ -166,6 +185,7 @@ $("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event) 
 	$(".TextInput").on('focus', function() {if($(this).val() == "...") $(this).val("")}); // is this shared??
 	$("div#Design").on('click',".ReloadButton" ,function() {alert('Reload not implemented.')} );
 	$(".Dragable").on("touchstart",function (event){alert("touch event@:"+event)}); // for touchscreen support!
+
 
 /* !dragover // i want : event.type, event.which, and event.target, and sometimes event.pageX/Y */
 // CHANGING to jquery UI for drag.
@@ -299,6 +319,11 @@ ShipDesign.prototype.CheckDuplicate = function(x,y,z) {for(var i=0, l=this.Compo
 														 return false;
 														}
 
+ShipDesign.prototype.ChangeZed = function(Direction) { 
+			if(Direction > 0) {Client.ObjDesign.Zed++;} 
+			else if(Direction < 0 ) {Client.ObjDesign.Zed--;}
+			Client.ObjDesign.ReDrawComponents();}
+
 ShipDesign.prototype.ReDrawComponents = function() 
 	{ var z = this.Zed;
 	 this.Canvas.empty();
@@ -335,35 +360,44 @@ ShipDesign.prototype.Simulate = function()
 	}
  for(var i = 0; i< this.Components.length; i++)
 	{ var Cp = this.Components[i];
-	 Cp.Stats.Heat['Level'] = Cp.Stats.Heat['Update']; //console.log(Cp.Links.length);
-		if(Cp.Type == 'Hull' && Cp.Stats.Heat['Level'] > 0.0) { Cp.Stats.Heat['Level'] -= (4 - Cp.Links.length) * 0.02 * (Cp.Stats.Heat['Level']); // bleeds excess heat into space (if less than 4 links)
+	Cp.Stats.Heat['Level'] = Cp.Stats.Heat['Update']; //console.log(Cp.Links.length);
+		if(Cp.Type == 'Hull' && Cp.Stats.Heat['Level'] > 0.0) { Cp.Stats.Heat['Level'] -= (6 - Cp.Links.length) * 0.02 * (Cp.Stats.Heat['Level']); // bleeds excess heat into space (if less than 4 links)
 //		console.log( 'DeltaHeat: '+ ((4 - Cp.Links.length) * 0.2 * Cp.Stats.Heat['Level']) );
 			}
-	 Cp.Stats.Energy['Level'] = Cp.Stats.Energy['Update'];
+	Cp.Stats.Energy['Level'] = Cp.Stats.Energy['Update'];
  
-		if(Cp.Stats.Energy['Level'] > 1.0) { Cp.Stats.Heat['Level'] += (Cp.Stats.Energy['Level'] - 1.0)/2; Cp.Stats.Energy['Level'] -= (Cp.Stats.Energy['Level'] - 1.0)/2} // should convert excess energy into heat
+	if(Cp.Stats.Energy['Level'] > 1.0) 
+		{ Cp.Stats.Heat['Level'] += (Cp.Stats.Energy['Level'] - 1.0)/2; Cp.Stats.Energy['Level'] -= (Cp.Stats.Energy['Level'] - 1.0)/2} // should convert excess energy into heat
 
-		if(Cp.Type == 'PowerSupply') Cp.Stats.Energy['Level'] += 0.4;
+	if(Cp.Type == 'PowerSupply') 
+		Cp.Stats.Energy['Level'] += 0.4;
 
-		 SumE += Cp.Stats.Energy['Level']; 
+	SumE += Cp.Stats.Energy['Level']; 
 
-		 Cp.Stats.O2['Level'] = Cp.Stats.O2['Update']; 
+	Cp.Stats.O2['Level'] = Cp.Stats.O2['Update']; 
 		if(Cp.Type == 'OxygenGen' && Cp.Stats.Energy.Level > 0.1) {Cp.Stats.O2['Level'] = Math.min(1.0, (Cp.Stats.O2['Level'] +0.5)); Cp.Stats.Energy.Level -= 0.05; Cp.Stats.Heat.Level += 0.05}
 		if(Cp.Type == 'System' && Cp.Stats.Energy.Level > 0.1 && Cp.Stats.O2.Level > 0.01) { Cp.Stats.Energy.Level -= 0.1; Cp.Stats.Heat.Level += 0.1; Cp.Stats.O2.Level -= 0.01;  this.SystemsActive++;}
 		if(Cp.Type == 'System') {TotalSystems++;}
-	   if(Cp.Stats.Heat['Level'] > 1.0) { Cp.Stats.Armour -= (Cp.Stats.Heat['Level'] - 1.0)/4; Cp.Stats.Heat['Level'] -= (Cp.Stats.Heat['Level'] - 1.0)/4; }
-	 SumO2 += Cp.Stats.O2['Level']; 
-	 SumH += Cp.Stats.Heat['Level'];
-	 Cp.Stats.Energy['Update'] = 0; // reset the update for next tick
-	 Cp.Stats.O2['Update'] = 0; // reset the update for next tick
-	 Cp.Stats.Heat['Update'] = 0; // reset the update for next tick
+		if(Cp.Stats.Heat['Level'] > 1.0) { Cp.Stats.Armour -= (Cp.Stats.Heat['Level'] - 1.0)/4; Cp.Stats.Heat['Level'] -= (Cp.Stats.Heat['Level'] - 1.0)/4; }
+	SumO2 += Cp.Stats.O2['Level']; 
+	SumH += Cp.Stats.Heat['Level'];
+	Cp.Stats.Energy['Update'] = 0; // reset the update for next tick
+	Cp.Stats.O2['Update'] = 0; // reset the update for next tick
+	Cp.Stats.Heat['Update'] = 0; // reset the update for next tick
 	}
 for(var i = 0; i< this.Components.length; i++)
-	{ if(this.Components[i].Stats.Armour <= 0.0) { this.Components[i].BreakLinks(); this.Components.splice(i,1);  }	}
- AverageO2 = SumO2 / this.Components.length;
- AverageEnergy = SumE / this.Components.length;
- AverageHeat = SumH / this.Components.length;
- }
+	{ 
+	if(this.Components[i].Stats.Armour <= 0.0) 
+		{
+		 this.Components[i].BreakLinks();
+		 this.Components.splice(i,1);  
+		}	
+	}
+	AverageO2 = SumO2 / this.Components.length;
+	AverageEnergy = SumE / this.Components.length;
+	AverageHeat = SumH / this.Components.length;
+	}
+
  var AvgText = 'Avg O2 lvl: ' + Math.round(AverageO2*100)+'%'; // update the O2 avg counter.
  AvgText += ' Avg Energy lvl: ' + Math.round(AverageEnergy*100)+'%';
  AvgText += ' Avg Heat lvl: ' + Math.round(AverageHeat*100)+'%'
@@ -399,12 +433,12 @@ ShipComponent.prototype.InitStats = function(Type)
 {
 switch(Type)
  {
-	case 'Room':		return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.98},
-								"Energy": {"Level": 0.0, "Update": 0.0, "Rate": 0.80 },
+	case 'Room':		return {"O2": {"Level": 0.5, "Update":0.0, "Rate":0.98},
+								"Energy": {"Level": 0.0, "Update": 0.0, "Rate": 0.30 },
 								"Heat": {"Level": 0.4, "Update": 0.0, "Rate": 0.40},
 								"Armour": 0.1, "BgImage": "url(./pix/Room.png)"}; // Internal Ship Space
 
-	case 'Hull': 		return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.05},
+	case 'Hull': 		return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.01},
 								"Energy": {"Level": 0.0, "Update": 0.0, "Rate": 0.99 },
 								"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.80},
 								"Armour": 0.9, "BgImage": "url(./pix/Hull.png)"}; // Hull
@@ -414,7 +448,7 @@ switch(Type)
 								"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
 								"Armour": 0.1, "BgImage": "url(./pix/System.png)"}; // System
 
-	case 'OxygenGen': 	return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.99},
+	case 'OxygenGen': 	return {"O2": {"Level": 1.0, "Update":0.0, "Rate":0.99},
 								"Energy": {"Level": 0.0, "Update": 0.0, "Rate": 0.30 },
 								"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.60},
 								"Armour": 0.1, "BgImage": "url(./pix/OxygenGen.png)"}; // O2 generator
@@ -492,7 +526,7 @@ ShipComponent.prototype.GetLinkLoss = function(stat, MyLevel)
 	for(var i =0, l=this.Links.length; i<l; i++) 
 		{
 			Leak = MyLevel*this.Links[i].Stats[stat]['Rate'];
-			this.Links[i].Stats[stat]['Update'] += Leak/6;
+			this.Links[i].Stats[stat]['Update'] += Leak/l;
 			Sum += Leak;
 		}
  return Sum/6; // 6 for maximum number of connections // should be 4 for 2D ships.

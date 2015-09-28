@@ -1,4 +1,4 @@
-"use strict";
+//"use strict";
 
 var StateClass = function(init) { /*console.log(this);*/ this.Name = init; } 
 
