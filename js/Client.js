@@ -21,6 +21,7 @@ var ClientClass = function()
 {
 	this.State = new StateClass('loading'); // Finite State Machine stuff here.
 	this.PrevState = {};
+	this.Player = {Name:'TEMP'}//new Player();
 }
 
 ClientClass.prototype.Login = function(Args) 
@@ -28,17 +29,23 @@ ClientClass.prototype.Login = function(Args)
 	console.log('HTTPS please, everywhere.');
 	var RespFunc = function() {return Client.ChangeTo('SpacePort')}
 	Client.ajaxCall(Args,RespFunc); // this should change to default page if spaceport was not chosen...
+	
 }
+
+ClientClass.prototype.SetUsername = function(Name)
+{ if(Name !== Client.Player.Name) Client.Player.Name = Name; }
+
 
 ClientClass.prototype.Logout = function()
 {
 	var RespFunc = function() {return function() {Client.ChangeTo('Login')} }
 	Client.ajaxCall('Logout=true',RespFunc);
+	Client.Player.Name = '';
 }
 
 ClientClass.prototype.ChangeTo = function(NewState, ExtraArgs)
-{ console.log(this);
-	console.log('Client->ChangeTo '+NewState+ ' <- From: ' + this.State.Name + ' '); 
+{ //console.log(this);
+	//console.log('Client->ChangeTo '+NewState+ ' <- From: ' + this.State.Name + ' '); 
  
 	function FunctionBinder(Client) { return function() { FindAndRunEnterState(Client)}; }
 	function FindAndRunEnterState(Client)
@@ -58,21 +65,22 @@ ClientClass.prototype.ChangeTo = function(NewState, ExtraArgs)
 	if(NewState != this.State.Name)
 	{
 		if(( $('#'+NewState)).length == 1)
-		{	console.log(NewState + ' newstate found')
+		{	//console.log(NewState + ' newstate found')
 			FindAndRunEnterState(this); 
 		}
 		else
-		{	console.log(NewState+' newstate not found');
+		{	//console.log(NewState+' newstate not found');
 			var SendArgs = 'tab='+NewState
 			if(ExtraArgs != undefined) { SendArgs += '&'+ExtraArgs;} 
 			Client.ajaxCall(SendArgs, FunctionBinder(this, FindAndRunEnterState));
 		}
 	}
 	else 
-	{	console.log('State not changed');
+	{	//console.log('State not changed');
 		this.State.Refresh();		
 	}
 }
+ClientClass.prototype.ErrorOutput = function (output) {alert(output);} // should be in window error message
 
 ClientClass.prototype.ajaxCall = function (data, ResponceFunc){
 //	var Client = this; // using global Client defn.
@@ -82,14 +90,14 @@ ClientClass.prototype.ajaxCall = function (data, ResponceFunc){
 	statusCode: {
 		404: function() {$("#PageContainer").append("<div class='error content' id='"+tab+"'>Error: Tab "+tab+" not found</div>")}
 	},
-	beforeSend: function() { $("#loading").show(); console.log('Before Send: '+data+ ' Client.state.name is : '+Client.State.Name ); //console.log(Client)
+	beforeSend: function() { $("#loading").show(); //console.log('Before Send: '+data+ ' Client.state.name is : '+Client.State.Name ); //console.log(Client)
 	},
  	success:function(data) 
-	  {	console.log('After Send: resp func='+ResponceFunc);
+	  {	//console.log('After Send: resp func='+ResponceFunc);
 		Client.evalJSON(data);
 		$("#loading").hide();
 		//$("#"+tab).show(200); // content arrives hidden, then this sets the display 
-		if(	!Client.BoolPreventCallback && typeof(ResponceFunc) === 'function') {console.log('.ajax->ResponceFunc '+ResponceFunc); ResponceFunc(); }
+		if(	!Client.BoolPreventCallback && typeof(ResponceFunc) === 'function') {/*console.log('.ajax->ResponceFunc '+ResponceFunc);*/ ResponceFunc(); }
 		else { Client.BoolPreventCallback = false;}
 	  },
 	});
@@ -115,7 +123,7 @@ ClientClass.prototype.evalJSON = function(data){ //console.log('eval:' + typeof(
 ClientClass.prototype.HandleNode = function (node, i){
 //	console.log(node);
 		 switch(node.cmd)
-		 {
+		 {			
 			case 'content': 
 			var tag = this.jsonToHtml(node), loc = $("#"+node.loc); // node.loc determines where on the page content is added
 			if(tag && loc) loc.append(tag); 
@@ -132,7 +140,7 @@ ClientClass.prototype.HandleNode = function (node, i){
 			case 'attachjs': 
 			try{		if(node.attr.js) { this.jsonToScriptInHead(node.attr.js);/*eval(node.attr.js);*/ }  } catch(err) {console.log(err+ ' '+node.attr.js)}
 				break;
-			case 'calljs': if(typeof(this[node.func]) == "function") { this[node.func](node.args[0]); } else { console.log('Error: node ['+i+'] - func not found: '+node.func); console.log(node); }
+			case 'calljs': if(typeof(this[node.func]) == "function") { this[node.func](node.args[0]); } else { console.log('Error: node ['+i+'] - func not found: '+node.func); console.log(typeof(node.func)); }
 				
 				break; // May need to use more than just the first arg. ** there is special stuff for handling this in JS ** (maybe)
 			default: console.log('Error: node ['+i+'] - cmd: '+node.cmd); console.log(node); break;

@@ -28,7 +28,7 @@ class Technology extends content
 	$DesignManageSpan = &$DesignNode->addchild('span')->addattr('class','Right')->addattr('id','DesignManager');
 	$DesignManageSpan->addchild('input')->addattr('type','button')->addattr('id',"RenameDesign")->addattr("value","Rename");
 	$DesignManageSpan->addchild('input')->addattr('type','button')->addattr('id','CombatTest')->addattr('value','Combat Test');
-	$DesignManageSpan->addchild('input')->addattr('type','button')->addattr('id',"OpenShareDesign")->addattr("value","Share")->addattr("onclick","alert('Todo: implement design sharing')");
+	$DesignManageSpan->addchild('input')->addattr('type','button')->addattr('id',"OpenShareDesign")->addattr("value","Share");
 
 
 	$TestDesignSpan = &$DesignNode->addchild('span')->addattr('class','Right hidden')->addattr('id','DesignTesting');
@@ -40,7 +40,15 @@ class Technology extends content
 	$TestDesignSpan->addchild('div')->addattr('class',"ZIndexMinus")->addtext("‒");
 	$TestDesignSpan->addchild('img')->addattr('class',"XYpan")->addattr("src","./pix/pan.png")->addattr('alt','Horizontal pan');
 
+	$ShareDesignFormContainer = &$DesignNode->addchild("div")->addattr("id","ShareDesignFormContainer")->addattr("class","hidden");
+	$ShareDesignFormContainer->addchild("div")->addtext("X")->addattr("class","CloseButton")->addid('ExitCombatTest');
+	$ShareDesignForm = &$ShareDesignFormContainer->addchild("div")->addclass('bgbox clear');
+	$ShareDesignForm->addchild("div")->addtext("Design name: ")->addchild('span')->addid("ShareDesignFormName");
+	$ShareDesignForm->addchild('div')->addtext('Owner: ')->addchild('span')->addid("ShareDesignFormOwner");
+	$ShareDesignForm->addchild('div')->addtext('Current Share Settings: ')->addchild('span')->addid("ShareDesignFormStatus");
+	$ShareDesignForm->addchild('div')->addtext('SHARING INCOMPLETE ');
 
+ 
 	$CombatTestContainer = &$DesignNode->addchild("div")->addattr("id","CombatTestContainer")->addattr("class","hidden");
 	$CombatTestContainer->addchild("div")->addtext("X")->addattr("class","CloseButton")->addid('ExitCombatTest');
 	$EquipForm = &$CombatTestContainer->addchild("div")->addclass('bgbox clear')->addtext("Equip: ")->addid("EquipForm");

@@ -87,10 +87,12 @@ class Game
 			$SubList = &$ListNode->addchild('li')->addtext('Client-server interaction(s)')->addchild('ul');
 			$SubList->addchild('li')->addattr('style','text-decoration: line-through')->addtext('login verification');
 			$SubList->addchild('li')->addattr('style','text-decoration: line-through')->addtext('logout&state?');
-			$ListNode->addchild('li')->addtext('Client Testing.')->addchild('ul')->addchild('li')->addtext('Debug event triggers twice (onload designs).');
+			$SubList->addchild('li')->addtext('login timeout bug');
+			$ListNode->addchild('li')->addtext('Client Testing.')->addchild('ul')->addchild('li')->addattr('style','text-decoration: line-through')->addtext('Debug event triggers twice (onload designs).');
 			$ListNode->addchild('li')->addtext('New Tab transition-animations');
 			$ListNode->addchild('li')->addtext('Tech-Design descriptions (db-change)');
-			$ListNode->addchild('li')->addtext('fix JSON responce for login timeouts');
+			$ListNode->addchild('li')->addattr('style','text-decoration: line-through')->addtext('fix JSON responce for login timeouts');
+			$ListNode->addchild('li')->addtext('fix Client error messages - remove alert');
 
 			$jsString = file_get_contents('./js/LoginForm.js');
 			if($jsString)
@@ -106,7 +108,7 @@ class Game
 
 
 // ** This game is not colonywars... ** //
-class ColonyWars extends Game 
+class AjaxWars extends Game 
 {
 	function SendReturn($Content) 
 	{
@@ -129,8 +131,8 @@ class ColonyWars extends Game
 	}	
 
 	function GetPage($Content)
-	{
-	 $ToReturn = $this->Head();
+	{ 
+	 $ToReturn = $this->Head(); 
 	$ToReturn .= "
 	<div id=PageContainer>
 		<div id=Console class=\"bgbox\">
@@ -145,7 +147,7 @@ class ColonyWars extends Game
 	function Head()
 	{
 	
-	if($this->name == '') $title = 'Colony-wars-Ajax'; else $title = $this->name;
+	if($this->name == '') $title = 'Ajax-Wars'; else $title = $this->name;
 	?> 
 	<!doctype html><html><head>
 	 <meta charset="utf-8" />
@@ -173,8 +175,8 @@ class ColonyWars extends Game
 
 
 	function __construct() {
-		$this->name = 'Colony-Wars';	
-	//	$url = 'http://www.colony-wars.com';
+		$this->name = 'Ajax wars';	
+	//	$url = 'http://www.colony-wars.com/ajax';
 
 		$this->db_user = 'colony_ajax';
 		$this->db_pass = 'stuff123';
@@ -203,20 +205,29 @@ class ColonyWars extends Game
 
 	function GetDesignList() {
 		 $mysqli = $this->mysqli;
-			$query = "SELECT DesignName FROM cw_ship_design WHERE Username = '{$this->Account}'";
+			
+			$List[] = '-- My Designs --';
+			$query = "SELECT DesignName, Share FROM cw_ship_design WHERE Username = '{$this->Account}'";
 			if($result = $mysqli->query($query))
-			{while($tmp = $result->fetch_array()) {$List[] = $tmp['DesignName'];}
-			return $List; } //array(); array('w','b');
-			else return 'Error4';
+			while($tmp = $result->fetch_array()) { $List[] = $tmp['DesignName'];} // toAdd = ($tmp['Share'] == 'public') ? " (" . $tmp['Share'] . ")" : "";
+
+			$List[] = '-- Public Designs --';
+			$query = "SELECT DesignName, Share FROM cw_ship_design WHERE Share = 'public'";
+			if($result = $mysqli->query($query))
+			while($tmp = $result->fetch_array()) { $List[] = $tmp['DesignName'];} // toAdd = ($tmp['Share'] == 'public') ? " (" . $tmp['Share'] . ")" : "";
+
+
+			if(is_array($List)) return $List; else return array('Please select design...'); //array(); array('w','b');
+			
 		} 
 
 	function GetDesignJSON($DesignName)
 		{
-		$mysqli = $this->mysqli;
-		$query = "SELECT DesignJSON FROM cw_ship_design WHERE Username = '{$this->Account}' AND DesignName = '".$mysqli->real_escape_string($DesignName)."' LIMIT 1";
+		$mysqli = $this->mysqli; // should be ownername not username... 
+		$query = "SELECT DesignJSON, Share, Username FROM cw_ship_design WHERE Username = '{$this->Account}' AND DesignName = '".$mysqli->real_escape_string($DesignName)."' LIMIT 1";
 		$result = $mysqli->query($query);
 		$resultobj = $result->fetch_object();
-		return $resultobj->DesignJSON;
+		return "{$resultobj->DesignJSON},\"{$resultobj->Share}\",\"{$resultobj->Username}\"";
 		}
 
 	function GetDesignDesc($DesignName)

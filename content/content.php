@@ -30,7 +30,8 @@ class content
 		$Builder = '[';
 		$ArgArray = func_get_args(); 
 		foreach($ArgArray as $value) { if($value != '') $Builder .= $value.','; }
-		$Builder = rtrim($Builder, ','); 
+	//	$Builder = rtrim($Builder, ','); 
+		if(isset($this->Game->Account)) {$Builder .= new calljs('SetUsername',array("{$this->Game->Account}"));}
 		$Builder .= ']';
 		return $Builder;
 	}

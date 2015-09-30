@@ -231,7 +231,7 @@ a.content, .content input, div.AddAbove
 	z-index:1;
 }
 
-#NewDesignForm, #HelperTextContainer, #LoadDesignFormContainer, #CombatTestContainer
+#NewDesignForm, #HelperTextContainer, #LoadDesignFormContainer, #CombatTestContainer, #ShareDesignFormContainer
 {
  margin:auto;
  width:704px;
@@ -245,7 +245,7 @@ a.content, .content input, div.AddAbove
 }
 
 .clear,
-#NewShipForm, #HelperText, #LoadDesignForm, #DescContainer {clear:both; }
+#NewShipForm, #HelperText, #LoadDesignForm, #DescContainer, #ShareDesignForm {clear:both; }
 
 #HelperText { padding:3px; text-align:justify;}
 

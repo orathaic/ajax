@@ -22,7 +22,7 @@ class LoadDesignForm extends content
 	$SelectNode = & $LoadDesignForm->addtext('Select Design ')->addchild('select')->addattr('id','DesignName')->addattr('name','DesignName');
 
 	$Option = $this->Game->GetDesignList();
-	
+
 	foreach($Option as $key => $value)
 	{$SelectNode->addchild('option')->addattr('value',$key)->addtext($value);} // key to identify in html without the limits of ID use.
 	$LoadDesignForm->linebreak()->addchild('input')->addattr('type','button')->addattr('id','LoadDesign')->addattr('value','Load Design');

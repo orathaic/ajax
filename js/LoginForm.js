@@ -1,6 +1,7 @@
 $('input#LoginButton').on('click',function() {	
 	Client.Login( $(this.parentNode).serialize() );
 	$('#ErrReply').text('');
+	Client.Player.Name = $('[name="_user"]').val();
 	}
 );
 

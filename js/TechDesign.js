@@ -9,7 +9,7 @@ $("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event) 
 		case 'DesignHelp': $("#HelperTextContainer").show(200); break;
 		case 'SubmitDesignName' : { //alert(' submitform '+$("#DesignNameText").val() );
 									$("#TechHeader").text("Design Name: "); $("#NameHeader").text($("#DesignNameText").val());
-									Client.ObjDesign = new ShipDesign( $("#DesignNameText").val() ); Client.ObjDesign.ReDrawComponents(); 
+									Client.ObjDesign = new ShipDesign( $("#DesignNameText").val(), 'private', Client.Player.Name  ); Client.ObjDesign.ReDrawComponents(); 
 									$("#NewDesignForm").hide(200); 
 									$("#NewShipForm").trigger("reset");
 									$('#EditDesign').trigger('click');
@@ -39,6 +39,12 @@ $("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event) 
 			Client.ObjDesign.Canvas = $("#DesignCanvas");
 			Client.ObjDesign.ReDrawComponents();
 			break;
+		case 'OpenShareDesign' :
+				if(!Client.hasOwnProperty('ObjDesign') ) { Client.ErrorOutput('No design to share, please try creating a new design.'); return;} else
+				//$("#ShareDesignForm").hide(200);
+				Client.ObjDesign.RefreshShareForm();
+				$("#ShareDesignForm").show(200);
+			break;
 		case 'OpenLoadDesignForm' : 
 		$.ajax(
 		   {
@@ -58,9 +64,9 @@ $("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event) 
 			beforeSend: function() {$("#loading").show();},
 			success:function(data) { 
 				$("#loading").hide(); 
-				var Design = JSON.parse(data); 
+				var Design = JSON.parse(data); //console.log(Design); 
 				$("#TechHeader").text("Design Name: "); $("#NameHeader").text(Design[0].Name);
-				Client.ObjDesign = new ShipDesign(Design[0].Name); //should the client handle this? probably...
+				Client.ObjDesign = new ShipDesign(Design[0].Name, Design[1], Design[2]); //should the client handle this? probably...
 				for(var i=0,l=Design[0].Components.length; i < l; i++)
 					{
 					var Cp = Design[0].Components[i];
@@ -92,7 +98,7 @@ $("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event) 
 		case 'EditDesign': {
 						 if( $(this).attr("value") == "Edit Design")
 						{
-							if(!(Client.hasOwnProperty('ObjDesign')) ) {alert('Nothing to edit, please try creating a new design.'); console.log(' no object'); return} else
+							if(!Client.hasOwnProperty('ObjDesign') ) { Client.ErrorOutput('Nothing to edit, please try creating a new design.'); console.log(' no object'); return} else
 							Client.ObjDesign.EditMode = true;	
 							$('#DesignManager').hide(100);
 							$('#DesignTesting').show(100);
@@ -205,9 +211,11 @@ Technology.prototype.ExitState = function () {
 
 */
 
-var ShipDesign = function (Name)
+var ShipDesign = function (Name, Share, Owner)
 {
 	this.DesignName = Name;
+	this.OwnerName = Owner;
+	this.Share = Share;
 	this.Components = [];//new array(new array(new array())); // 3-d array, x,y,z - 
 	this.Canvas = $("#DesignCanvas");
 	this.ColourMap = 'none';
@@ -227,6 +235,16 @@ ShipDesign.prototype.JSONStringify = function()
 	}	
 	return Stringified += ']}';
 }
+
+ShipDesign.prototype.RefreshShareForm = function()
+	{
+		//alert('refreshing... (NOT IMPLEMENTED)');
+		$("#ShareDesignFormName").text(this.DesignName);
+		$("#ShareDesignFormOwner").text(this.OwnerName);
+		$("#ShareDesignFormStatus").text(this.Share);
+		$("#ShareDesignFormContainer").show(200);
+	}
+
 ShipDesign.prototype.Save = function()
 	{ //console.log(this.JSONStringify());
 		$.ajax(
@@ -341,22 +359,23 @@ ShipDesign.prototype.ReDrawComponents = function()
 
 ShipDesign.prototype.TestDesign = function(Button) {
 	if( Button.attr("value") == "Test Design")
-	 { IntervalTimer=setInterval( function(){Client.ObjDesign.Simulate()}, 40); Button.attr("value","Stop Testing"); }
+	 /*{ IntervalTimer=setInterval( function(){Client.ObjDesign.Simulate()}, 40); Button.attr("value","Stop Testing"); }
 	else if (Button.attr("value") == "Stop Testing")
-	 { clearInterval(IntervalTimer); Button.attr("value","Test Design"); }
+	 { clearInterval(IntervalTimer); Button.attr("value","Test Design"); }*/
+	Client.ObjDesign.Simulate();
 }
 
 ShipDesign.prototype.Simulate = function() 
 { $('#SimData').show()
  var AverageO2 =0, AverageEnergy = 0, AverageHeat = 0, TotalSystems; 
- for(var k =0; k<10; k++)
+ for(var k =0; k<1; k++) // k cycles per frame
  { 
  var SumO2 =0, SumE =0; SumH =0; this.SystemsActive = 0; TotalSystems = 0;
  for(var i = 0; i< this.Components.length; i++)
 	{ var Cp = this.Components[i]; 
-	 Cp.Stats.Energy['Update'] += Cp.Stats.Energy['Level'] - Cp.GetLinkLoss('Energy', Cp.Stats.Energy['Level']);
-	 Cp.Stats.Heat['Update'] += Cp.Stats.Heat['Level'] - Cp.GetLinkLoss('Heat', Cp.Stats.Heat['Level']);
-	 Cp.Stats.O2['Update'] += Cp.Stats.O2['Level'] - Cp.GetLinkLoss('O2', Cp.Stats.O2['Level']);
+	 Cp.Stats.Energy['Update'] += Cp.Stats.Energy['Level'] - Cp.GetLinkLoss('Energy');
+	 Cp.Stats.Heat['Update'] += Cp.Stats.Heat['Level'] - Cp.GetLinkLoss('Heat');
+	 Cp.Stats.O2['Update'] += Cp.Stats.O2['Level'] - Cp.GetLinkLoss('O2');
 	}
  for(var i = 0; i< this.Components.length; i++)
 	{ var Cp = this.Components[i];
@@ -521,13 +540,13 @@ ShipComponent.prototype.ColourMapping = function(val)
 	 return ToReturn;
 }
 
-ShipComponent.prototype.GetLinkLoss = function(stat, MyLevel)
-{ var Sum = 0;
+ShipComponent.prototype.GetLinkLoss = function(stat)
+{ var Sum = 0, MyLevel =this.Stats[stat]['Level'];
 	for(var i =0, l=this.Links.length; i<l; i++) 
 		{
-			Leak = MyLevel*this.Links[i].Stats[stat]['Rate'];
-			this.Links[i].Stats[stat]['Update'] += Leak/l;
+			Leak = MyLevel*this.Links[i].Stats[stat]['Rate']/l;
+			this.Links[i].Stats[stat]['Update'] += Leak;
 			Sum += Leak;
 		}
- return Sum/6; // 6 for maximum number of connections // should be 4 for 2D ships.
+ return Sum; // 6 for maximum number of connections // should be 4 for 2D ships.
 }
