@@ -1,9 +1,10 @@
 var Technology = function() {return StateClass('Technology');}
 
-Technology.prototype.EnterState = function () { 
-
-$("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event) {
-	//	console.log("trigger: "+ $(this).attr("id")+ " "+ $(event.target).attr('class')+'  who'+event);
+Technology.prototype.EnterState = function ()
+{ 
+	$("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event)
+	{
+		//	console.log("trigger: "+ $(this).attr("id")+ " "+ $(event.target).attr('class')+'  who'+event);
 		switch(event.currentTarget.id) // event.target.id OR currentTarget.id ?? stop bubbling?
 		{
 		case 'DesignHelp': $("#HelperTextContainer").show(200); break;
@@ -67,11 +68,7 @@ $("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event) 
 				var Design = JSON.parse(data); //console.log(Design); 
 				$("#TechHeader").text("Design Name: "); $("#NameHeader").text(Design[0].Name);
 				Client.ObjDesign = new ShipDesign(Design[0].Name, Design[1], Design[2]); //should the client handle this? probably...
-				for(var i=0,l=Design[0].Components.length; i < l; i++)
-					{
-					var Cp = Design[0].Components[i];
-					Client.ObjDesign.AddComponent(Cp.x,Cp.y,Cp.z,Cp.Type);
-					}
+				Client.ObjDesign.MultiAddComponents(Design[0].Components)
 				Client.ObjDesign.ReDrawComponents();
 				$("#LoadDesignFormContainer").hide(200);
 				$('#EditDesign').trigger('click');								
@@ -133,7 +130,8 @@ $("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event) 
 								var top = event.originalEvent.pageY, left = event.originalEvent.pageX; 
 								top = top - $("#DesignCanvas").offset().top + 10; left = left - $("#DesignCanvas").offset().left + 10;
 								top = top - top%20; left = left - left%20;
-								if(Client.ObjDesign !== undefined && Client.ObjDesign.ToPlace !== 'none') Client.ObjDesign.AddComponent( (left/20),(top/20),Client.ObjDesign.Zed,Client.ObjDesign.ToPlace );
+								if(Client.ObjDesign !== undefined && Client.ObjDesign.ToPlace !== 'none')
+								{ Client.ObjDesign.AddComponent( (left/20),(top/20),Client.ObjDesign.Zed,Client.ObjDesign.ToPlace ); }
 								Client.ObjDesign.ReDrawComponents();
 							});
 							$(this).attr("value", "\u0298");
@@ -196,14 +194,15 @@ $("div#Design").on("click", "div:not('#columnleft'),input,img" ,function(event) 
 /* !dragover // i want : event.type, event.which, and event.target, and sometimes event.pageX/Y */
 // CHANGING to jquery UI for drag.
 	$('#Technology').show(200);
- }
+}
 
-Technology.prototype.ExitState = function () {  
+Technology.prototype.ExitState = function ()
+{  
 	$("div#Design").off('click');
 	$(".TextInput").off('click');
 	$(".Dragable").off('touchstart');
 	$('#Technology').hide(200); 
- } 
+} 
 
 /*		$("#LoadDesignFormContainer").on('click','input#LoadDesign',function() {
 
@@ -223,6 +222,8 @@ var ShipDesign = function (Name, Share, Owner)
 	this.EditMode = false;
 	this.ToPlace = 'none';
 	this.Zed = '2';
+
+	this.CapacitorSets = []; //array of capacitor objects (each a set linked hull capacitors).
 }
 
 ShipDesign.prototype.JSONStringify = function()
@@ -237,116 +238,134 @@ ShipDesign.prototype.JSONStringify = function()
 }
 
 ShipDesign.prototype.RefreshShareForm = function()
-	{
-		//alert('refreshing... (NOT IMPLEMENTED)');
-		$("#ShareDesignFormName").text(this.DesignName);
-		$("#ShareDesignFormOwner").text(this.OwnerName);
-		$("#ShareDesignFormStatus").text(this.Share);
-		$("#ShareDesignFormContainer").show(200);
-	}
+{
+	//alert('refreshing... (NOT IMPLEMENTED)');
+	$("#ShareDesignFormName").text(this.DesignName);
+	$("#ShareDesignFormOwner").text(this.OwnerName);
+	$("#ShareDesignFormStatus").text(this.Share);
+	$("#ShareDesignFormContainer").show(200);
+}
 
 ShipDesign.prototype.Save = function()
-	{ //console.log(this.JSONStringify());
-		$.ajax(
-		{
-		type: 'POST',
-		data: {'SaveShipDesign':true,'name':this.DesignName, 'json':this.JSONStringify() } , 
-		url: "./index.php",
-		statusCode: {404: function() {$("#PageContainer").append("<div class='error content' id='"+tab+"'>Error: Tab "+tab+" not found</div>"); }},
-		beforeSend: function() {$('#SimData').text('Saving...').show(500);},
-	 	success:function(data) 
-		{ 
-			if(data === '1') $('#SimData').text('Saved.').delay(500).hide(500);
-			else $('#SimData').text(data);
-		}, 
-		error: 	function(jqXHR, errorstring ) {$('#SimData').text('Error '+errorstring);}
+{ //console.log(this.JSONStringify());
+	$.ajax(
+	{
+	type: 'POST',
+	data: {'SaveShipDesign':true,'name':this.DesignName, 'json':this.JSONStringify() } , 
+	url: "./index.php",
+	statusCode: {404: function() {$("#PageContainer").append("<div class='error content' id='"+tab+"'>Error: Tab "+tab+" not found</div>"); }},
+	beforeSend: function() {$('#SimData').text('Saving...').show(500);},
+ 	success:function(data) 
+	{ 
+		if(data === '1') $('#SimData').text('Saved.').delay(500).hide(500);
+		else $('#SimData').text(data);
+	}, 
+	error: 	function(jqXHR, errorstring ) {$('#SimData').text('Error '+errorstring);}
 
-		});
-		return 'none';
-	}
+	});
+	return 'none';
+}
 
 ShipDesign.prototype.RenameButton = function(jQButton)  // jQelem	
-	{ console.log('RenameButton called: '+jQButton);
-	if(jQButton.val() =='Rename') {		
+{ console.log('RenameButton called: '+jQButton);
+	if(jQButton.val() =='Rename') 
+	{		
 		jQButton.attr('type','text').val($("#NameHeader").text());
-		jQButton.on('keydown.renameform', function(event){ //console.log(event+' '+event.which);
-			if(event.which == 13) { //console.log('13 '+this.value); // 13 is enter.
+		jQButton.on('keydown.renameform', function(event)
+		{ //console.log(event+' '+event.which);
+			if(event.which == 13) 
+			{ //console.log('13 '+this.value); // 13 is enter.
 				Client.ObjDesign.Rename( $(this).val() );
 				$('#RenameDesign').off('.renameform').attr('type','button').val('Rename'); 
 				event.stopPropagation();
 				return false;
-				}  
-			});		
-		}
+			}  
+		});		
 	}
+}
 
 ShipDesign.prototype.Rename = function(NewName)
-	{
-		$('#NameHeader').text(NewName); 
-		Client.ObjDesign.DesignName = NewName;
-	}
+{
+	$('#NameHeader').text(NewName); 
+	Client.ObjDesign.DesignName = NewName;
+}
 
 ShipDesign.prototype.PlaceMode = function(CompType) 
-	{
-		switch(CompType) {
-			case 'Room': this.ToPlace = CompType; break;
-			case 'Hull': this.ToPlace = CompType; break;
-			case 'System': this.ToPlace = CompType; break;
-			case 'OxygenGen': this.ToPlace = CompType; break;
-			case 'PowerSupply': this.ToPlace = CompType; break;
-			default: this.ToPlace = 'none';
-			} //console.log(this.ToPlace);
-	}
+{
+	switch(CompType) {
+		case 'Room': this.ToPlace = CompType; break;
+		case 'Hull': this.ToPlace = CompType; break;
+		case 'System': this.ToPlace = CompType; break;
+		case 'OxygenGen': this.ToPlace = CompType; break;
+		case 'PowerSupply': this.ToPlace = CompType; break;
+		default: this.ToPlace = 'none';
+		} //console.log(this.ToPlace);
+}
 
-ShipDesign.prototype.ColourMapTo = function (ToSet) {
-													if(this.ColourMap != ToSet ) 
-															this.SetColourMap(ToSet);
-														else
-															this.SetColourMap("none");
-														this.ReDrawComponents();
-													}
+ShipDesign.prototype.ColourMapTo = function (ToSet)
+{
+	if(this.ColourMap != ToSet ) 
+			this.SetColourMap(ToSet);
+		else
+			this.SetColourMap("none");
+		this.ReDrawComponents();
+}
 
 ShipDesign.prototype.SetColourMap = function(Stat) { this.ColourMap = Stat;}
 
-ShipDesign.prototype.AddComponent = function(x,y,z,Type) { 
-															var i = this.CheckDuplicate(x,y,z);
-															if(i != false || i === 0 ) {
-																this.Components[i].Type = Type; 
-																this.Components[i].InitStats(Type); 
-																//this.Components[i].BreakLinks();
-																//this.Components[i].FindLinks();	
-																return;
-																}														
-															else return this.Components.push(new ShipComponent(x,y,z,Type,this));
-															}
+ShipDesign.prototype.MultiAddComponents = function(ComponentArray)
+{
+	for(var i=0,l=ComponentArray.length; i < l; i++)
+		{
+		var Cp = ComponentArray[i];
+		this.AddComponent(Cp.x,Cp.y,Cp.z,Cp.Type);
+		}
+}
 
-ShipDesign.prototype.MoveComponent = function(x,y,z,id) { 
-															var i = this.CheckDuplicate(x,y,z);
-															if(i != false || i === 0 )
-															{return; }
-															else this.Components[id].Move(x,y,z); 
-														}
+ShipDesign.prototype.AddComponent = function(x,y,z,Type) 
+{ 
+	var i = this.CheckDuplicate(x,y,z);
+	if(i != false || i === 0 ) {
+		this.Components[i].Type = Type; 
+		this.Components[i].InitStats(Type); 
+		return;
+		}														
+	else return this.Components.push(new ShipComponent(x,y,z,Type,this));
+	}
 
-ShipDesign.prototype.CheckDuplicate = function(x,y,z) {for(var i=0, l=this.Components.length; i<l; i++)
-															{if (this.Components[i].x == x && this.Components[i].y == y && this.Components[i].z == z ) 
-																{
-																 return i;
-																}
+ShipDesign.prototype.MoveComponent = function(x,y,z,id)
+{ 
+	var i = this.CheckDuplicate(x,y,z);
+	if(i != false || i === 0 )
+	{return; }
+	else this.Components[id].Move(x,y,z); 
+}
 
-															}
-														 return false;
-														}
+ShipDesign.prototype.CheckDuplicate = function(x,y,z) 
+{
+	for(var i=0, l=this.Components.length; i<l; i++)
+	{if (this.Components[i].x == x && this.Components[i].y == y && this.Components[i].z == z ) 
+		{
+		 return i;
+		}
 
-ShipDesign.prototype.ChangeZed = function(Direction) { 
-			if(Direction > 0) {Client.ObjDesign.Zed++;} 
-			else if(Direction < 0 ) {Client.ObjDesign.Zed--;}
-			Client.ObjDesign.ReDrawComponents();}
+	}
+ return false;
+}
+
+ShipDesign.prototype.ChangeZed = function(Direction) 
+{ 
+		if(Direction > 0) {Client.ObjDesign.Zed++;} 
+		else if(Direction < 0 ) {Client.ObjDesign.Zed--;}
+		Client.ObjDesign.ReDrawComponents();
+}
 
 ShipDesign.prototype.ReDrawComponents = function() 
-	{ var z = this.Zed;
-	 this.Canvas.empty();
+{
+	var z = this.Zed;
+	this.Canvas.empty();
 	var docFragment = document.createDocumentFragment();
-	 for(var i =0; i < this.Components.length; i++)
+	for(var i =0; i < this.Components.length; i++)
 	 {
 	  if(this.Components[i].z <= z) { docFragment = this.Components[i].Draw(docFragment, i, (this.Components[i].z - z) ); };  
 	 }
@@ -355,74 +374,123 @@ ShipDesign.prototype.ReDrawComponents = function()
 					event.originalEvent.dataTransfer.setData("Text",event.target.id);
 				});
 	 $('#ZedIndexHeader').text(' (deck: '+(z -1)+')');
-	}
+}
 
-ShipDesign.prototype.TestDesign = function(Button) {
+ShipDesign.prototype.TestDesign = function(Button)
+{
 	if( Button.attr("value") == "Test Design")
-	 /*{ IntervalTimer=setInterval( function(){Client.ObjDesign.Simulate()}, 40); Button.attr("value","Stop Testing"); }
+	 { IntervalTimer=setInterval( function(){Client.ObjDesign.Simulate()}, 40); Button.attr("value","Stop Testing"); }
 	else if (Button.attr("value") == "Stop Testing")
-	 { clearInterval(IntervalTimer); Button.attr("value","Test Design"); }*/
-	Client.ObjDesign.Simulate();
+	 { clearInterval(IntervalTimer); Button.attr("value","Test Design"); }
+	//Client.ObjDesign.Simulate();
 }
 
 ShipDesign.prototype.Simulate = function() 
-{ $('#SimData').show()
- var AverageO2 =0, AverageEnergy = 0, AverageHeat = 0, TotalSystems; 
- for(var k =0; k<1; k++) // k cycles per frame
- { 
- var SumO2 =0, SumE =0; SumH =0; this.SystemsActive = 0; TotalSystems = 0;
- for(var i = 0; i< this.Components.length; i++)
-	{ var Cp = this.Components[i]; 
-	 Cp.Stats.Energy['Update'] += Cp.Stats.Energy['Level'] - Cp.GetLinkLoss('Energy');
-	 Cp.Stats.Heat['Update'] += Cp.Stats.Heat['Level'] - Cp.GetLinkLoss('Heat');
-	 Cp.Stats.O2['Update'] += Cp.Stats.O2['Level'] - Cp.GetLinkLoss('O2');
-	}
- for(var i = 0; i< this.Components.length; i++)
-	{ var Cp = this.Components[i];
-	Cp.Stats.Heat['Level'] = Cp.Stats.Heat['Update']; //console.log(Cp.Links.length);
-		if(Cp.Type == 'Hull' && Cp.Stats.Heat['Level'] > 0.0) { Cp.Stats.Heat['Level'] -= (6 - Cp.Links.length) * 0.02 * (Cp.Stats.Heat['Level']); // bleeds excess heat into space (if less than 4 links)
-//		console.log( 'DeltaHeat: '+ ((4 - Cp.Links.length) * 0.2 * Cp.Stats.Heat['Level']) );
+{
+	 $('#SimData').show()
+	 var AverageO2 =0, AverageEnergy = 0, AverageHeat = 0, TotalSystems; 	
+
+	 for(var k =0; k<10; k++) // k cycles per frame
+	 	{ 
+		 var SumO2 =0, SumE =0; SumH =0, this.SystemsActive = 0, TotalSystems = 0; 
+		 for(var i = 0; i< this.Components.length; i++)
+			{ var Cp = this.Components[i]; 
+			 
+			 Cp.Stats.Energy['Update'] += Cp.Stats.Energy['Level'] - Cp.GetLinkLoss('Energy');
+			 Cp.Stats.Heat['Update'] += Cp.Stats.Heat['Level'] - Cp.GetLinkLoss('Heat');
+			 Cp.Stats.O2['Update'] += Cp.Stats.O2['Level'] - Cp.GetLinkLoss('O2');
 			}
-	Cp.Stats.Energy['Level'] = Cp.Stats.Energy['Update'];
- 
-	if(Cp.Stats.Energy['Level'] > 1.0) 
-		{ Cp.Stats.Heat['Level'] += (Cp.Stats.Energy['Level'] - 1.0)/2; Cp.Stats.Energy['Level'] -= (Cp.Stats.Energy['Level'] - 1.0)/2} // should convert excess energy into heat
+		 for(var i = 0; i< this.Components.length; i++)
+			{ var Cp = this.Components[i];
+			Cp.Stats.Heat['Level'] = Cp.Stats.Heat['Update']; //console.log(Cp.Links.length);
+				if(Cp.Type == 'Hull' && Cp.Stats.Heat['Level'] > 0.0) { Cp.Stats.Heat['Level'] -= (6 - Cp.Links.length) * 0.02 * (Cp.Stats.Heat['Level']); // bleeds excess heat into space (if less than 4 links)
+		//		console.log( 'DeltaHeat: '+ ((4 - Cp.Links.length) * 0.2 * Cp.Stats.Heat['Level']) );
+					}
+			Cp.Stats.Energy['Level'] = Cp.Stats.Energy['Update'];
+		 
+			if(Cp.Stats.Energy['Level'] > 1.0) 
+				{ Cp.Stats.Heat['Level'] += (Cp.Stats.Energy['Level'] - 1.0)/2; Cp.Stats.Energy['Level'] -= (Cp.Stats.Energy['Level'] - 1.0)/2} // should convert excess energy into heat
 
-	if(Cp.Type == 'PowerSupply') 
-		Cp.Stats.Energy['Level'] += 0.4;
+			if(Cp.Type == 'PowerSupply') 
+				Cp.Stats.Energy['Level'] += 0.4;
 
-	SumE += Cp.Stats.Energy['Level']; 
+			SumE += Cp.Stats.Energy['Level']; 
 
-	Cp.Stats.O2['Level'] = Cp.Stats.O2['Update']; 
-		if(Cp.Type == 'OxygenGen' && Cp.Stats.Energy.Level > 0.1) {Cp.Stats.O2['Level'] = Math.min(1.0, (Cp.Stats.O2['Level'] +0.5)); Cp.Stats.Energy.Level -= 0.05; Cp.Stats.Heat.Level += 0.05}
-		if(Cp.Type == 'System' && Cp.Stats.Energy.Level > 0.1 && Cp.Stats.O2.Level > 0.01) { Cp.Stats.Energy.Level -= 0.1; Cp.Stats.Heat.Level += 0.1; Cp.Stats.O2.Level -= 0.01;  this.SystemsActive++;}
-		if(Cp.Type == 'System') {TotalSystems++;}
-		if(Cp.Stats.Heat['Level'] > 1.0) { Cp.Stats.Armour -= (Cp.Stats.Heat['Level'] - 1.0)/4; Cp.Stats.Heat['Level'] -= (Cp.Stats.Heat['Level'] - 1.0)/4; }
-	SumO2 += Cp.Stats.O2['Level']; 
-	SumH += Cp.Stats.Heat['Level'];
-	Cp.Stats.Energy['Update'] = 0; // reset the update for next tick
-	Cp.Stats.O2['Update'] = 0; // reset the update for next tick
-	Cp.Stats.Heat['Update'] = 0; // reset the update for next tick
+			Cp.Stats.O2['Level'] = Cp.Stats.O2['Update']; 
+				if(Cp.Type == 'OxygenGen' && Cp.Stats.Energy.Level > 0.1) {Cp.Stats.O2['Level'] = Math.min(1.0, (Cp.Stats.O2['Level'] +0.5)); Cp.Stats.Energy.Level -= 0.05; Cp.Stats.Heat.Level += 0.05}
+				if(Cp.Type == 'System' && Cp.Stats.Energy.Level > 0.1 && Cp.Stats.O2.Level > 0.01) { Cp.Stats.Energy.Level -= 0.1; Cp.Stats.Heat.Level += 0.1; Cp.Stats.O2.Level -= 0.01;  this.SystemsActive++;}
+				if(Cp.Type == 'System') {TotalSystems++;}
+				if(Cp.Stats.Heat['Level'] > 1.0) { Cp.Stats.Armour -= (Cp.Stats.Heat['Level'] - 1.0)/4; Cp.Stats.Heat['Level'] -= (Cp.Stats.Heat['Level'] - 1.0)/4; }
+			SumO2 += Cp.Stats.O2['Level']; 
+			SumH += Cp.Stats.Heat['Level'];
+			Cp.Stats.Energy['Update'] = 0; // reset the update for next tick
+			Cp.Stats.O2['Update'] = 0; // reset the update for next tick
+			Cp.Stats.Heat['Update'] = 0; // reset the update for next tick
+			}
+
+			for(var i = 0; i< this.Components.length; i++)
+			{ 
+				if(this.Components[i].Stats.Armour <= 0.0) 
+					{
+					 this.Components[i].BreakLinks();
+					 this.Components.splice(i,1); 
+					 this.GenerateCapacitorSets(); 
+					}	
+			}
+			AverageO2 = SumO2 / this.Components.length;
+			AverageEnergy = SumE / this.Components.length;
+			AverageHeat = SumH / this.Components.length;
+			}
+
+	 var AvgText = 'Avg O2 lvl: ' + Math.round(AverageO2*100)+'%'; // update the O2 avg counter.
+	 AvgText += ' Avg Energy lvl: ' + Math.round(AverageEnergy*100)+'%';
+	 AvgText += ' # of cap sets: ' + this.ShipCapacitorCount;
+	 AvgText += ' Avg Heat lvl: ' + Math.round(AverageHeat*100)+'%'
+	 AvgText += ' Sys Active: '+this.SystemsActive + '/' + TotalSystems;
+	 $('#SimData').text(AvgText);
+	 this.ReDrawComponents();
+}
+
+ShipDesign.prototype.GenerateCapacitorSets = function()
+{
+	this.CapacitorSets = []; // reset all cap sets to empty.
+	for(var i = 0; i< this.Components.length; i++)
+		{ this.Components[i].CapacitorSet = null; }
+
+
+	for(var i = 0; i< this.Components.length; i++)
+		{ 
+			this.Components[i].CapacitorSet = this.Components[i].FindCapacitorSet();
+		}
+}
+
+ShipDesign.prototype.ListCapacitorSets = function() // for debugging
+{	var tolog = 'Capacitor sets: '+this.CapacitorSets.length+ ':\n';
+	for(var i = 0; i < this.CapacitorSets.length; i++)
+		{tolog += '#'+ this.CapacitorSets[i].ComponentArray.length +' ' + this.CapacitorSets[i].CurrentCapacitor+'/'+this.CapacitorSets[i].MaxCapacitor+'\n'}
+	console.log(tolog);
+return true;
+}
+
+var CapacitorSet = function (FirstComponent) 
+{
+	this.ComponentArray = new Array(FirstComponent);
+	this.Ship = FirstComponent.Ship;
+	this.MaxCapacitor = this.ComponentArray.length * 1; //(1 is max energy per square)
+	this.CurrentCapacitor = 0;
+}
+
+CapacitorSet.prototype.MergeCapicatorSets = function(MergingSet) 
+{//	console.log('implementing... [CapicitorSet Merging].');
+	this.MaxCapacitor += MergingSet.MaxCapacitor;
+	this.CurrentCapacitor += MergingSet.CurrentCapacitor;
+
+	for(var i=0, l = MergingSet.ComponentArray.length; i<l; i++)
+	{
+		this.ComponentArray.push( MergingSet.ComponentArray[i] );  
+		MergingSet.ComponentArray[i].CapacitorSet = this;
 	}
-for(var i = 0; i< this.Components.length; i++)
-	{ 
-	if(this.Components[i].Stats.Armour <= 0.0) 
-		{
-		 this.Components[i].BreakLinks();
-		 this.Components.splice(i,1);  
-		}	
-	}
-	AverageO2 = SumO2 / this.Components.length;
-	AverageEnergy = SumE / this.Components.length;
-	AverageHeat = SumH / this.Components.length;
-	}
-
- var AvgText = 'Avg O2 lvl: ' + Math.round(AverageO2*100)+'%'; // update the O2 avg counter.
- AvgText += ' Avg Energy lvl: ' + Math.round(AverageEnergy*100)+'%';
- AvgText += ' Avg Heat lvl: ' + Math.round(AverageHeat*100)+'%'
- AvgText += ' Sys Active: '+this.SystemsActive + '/' + TotalSystems;
- $('#SimData').text(AvgText);
- this.ReDrawComponents();
+	this.Ship.CapacitorSets.splice(this.Ship.CapacitorSets.indexOf(MergingSet),1); 
 }
 
 var ShipComponent = function(x,y,z,Type,Ship)
@@ -437,6 +505,9 @@ var ShipComponent = function(x,y,z,Type,Ship)
 	this.Ship = Ship; 
 	this.Links = new Array();
 	this.FindLinks();
+
+	this.CapacitorSet = this.FindCapacitorSet();
+
 }
 
 ShipComponent.prototype.Move = function(x,y,z)
@@ -450,38 +521,38 @@ ShipComponent.prototype.Move = function(x,y,z)
 
 ShipComponent.prototype.InitStats = function(Type)
 {
-switch(Type)
- {
-	case 'Room':		return {"O2": {"Level": 0.5, "Update":0.0, "Rate":0.98},
-								"Energy": {"Level": 0.0, "Update": 0.0, "Rate": 0.30 },
-								"Heat": {"Level": 0.4, "Update": 0.0, "Rate": 0.40},
-								"Armour": 0.1, "BgImage": "url(./pix/Room.png)"}; // Internal Ship Space
+	switch(Type)
+	 {
+		case 'Room':		return {"O2": {"Level": 0.5, "Update":0.0, "Rate":0.98},
+									"Energy": {"Level": 0.0, "Update": 0.0, "Rate": 0.30 },
+									"Heat": {"Level": 0.4, "Update": 0.0, "Rate": 0.40},
+									"Armour": 0.1, "BgImage": "url(./pix/Room.png)"}; // Internal Ship Space
 
-	case 'Hull': 		return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.01},
-								"Energy": {"Level": 0.0, "Update": 0.0, "Rate": 0.99 },
-								"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.80},
-								"Armour": 0.9, "BgImage": "url(./pix/Hull.png)"}; // Hull
+		case 'Hull': 		return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.01},
+									"Energy": {"Level": 0.0, "Update": 0.0, "Rate": 0.99 },
+									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.80},
+									"Armour": 0.9, "BgImage": "url(./pix/Hull.png)"}; // Hull
 
-	case 'System':		return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
-								"Energy": {"Level": 0.0, "Update": 0.0, "Rate": 0.30 },
-								"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
-								"Armour": 0.1, "BgImage": "url(./pix/System.png)"}; // System
+		case 'System':		return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
+									"Energy": {"Level": 0.0, "Update": 0.0, "Rate": 0.30 },
+									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
+									"Armour": 0.1, "BgImage": "url(./pix/System.png)"}; // System
 
-	case 'OxygenGen': 	return {"O2": {"Level": 1.0, "Update":0.0, "Rate":0.99},
-								"Energy": {"Level": 0.0, "Update": 0.0, "Rate": 0.30 },
-								"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.60},
-								"Armour": 0.1, "BgImage": "url(./pix/OxygenGen.png)"}; // O2 generator
+		case 'OxygenGen': 	return {"O2": {"Level": 1.0, "Update":0.0, "Rate":0.99},
+									"Energy": {"Level": 0.0, "Update": 0.0, "Rate": 0.30 },
+									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.60},
+									"Armour": 0.1, "BgImage": "url(./pix/OxygenGen.png)"}; // O2 generator
 
-	case 'PowerSupply': return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.78},
-								"Energy": {"Level": 1.0, "Update": 0.0, "Rate": 0.1 },
-								"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.60},
-								"Armour": 0.1, "BgImage": "url(./pix/PowerSupply.png)"}; // Power Unit
+		case 'PowerSupply': return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.78},
+									"Energy": {"Level": 1.0, "Update": 0.0, "Rate": 0.1 },
+									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.60},
+									"Armour": 0.1, "BgImage": "url(./pix/PowerSupply.png)"}; // Power Unit
 
-	default: 			return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.0},
-								"Energy": {"Level": 0.0, "Update": 0.0, "Rate":0.0 },
-								"Heat": {"Level": 0.0, "Update": 0.0, "Rate":0.0},
-								"Armour": 0.01, "BgImage": "rgb(0,0,0)"};
- }
+		default: 			return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.0},
+									"Energy": {"Level": 0.0, "Update": 0.0, "Rate":0.0 },
+									"Heat": {"Level": 0.0, "Update": 0.0, "Rate":0.0},
+									"Armour": 0.01, "BgImage": "rgb(0,0,0)"};
+	 }
 }
 
 /**  Links used to connect O2, Heat and Power, each component type needs a rate of transfer to it's neighbours. **/
@@ -500,8 +571,8 @@ ShipComponent.prototype.FindLinks = function()
 
 ShipComponent.prototype.BreakLinks = function()
 { 
-	for(var i=0; i < this.Links.length; i++)
-	{for(var j=0; j < this.Links[i].Links.length; j++) 
+	for(var i=0, l = this.Links.length; i<l; i++)
+	{for(var j=0, k = this.Links[i].Links.length; j < k; j++) 
 		{
 			if(this.Links[i].Links[j] == this) {this.Links[i].Links.splice(j,1); j=this.Links[i].Links.length+1;} 
 			//console.log('breaking '+i+' '+j);
@@ -510,6 +581,24 @@ ShipComponent.prototype.BreakLinks = function()
 	this.Links.length = 0;
 }
 
+ShipComponent.prototype.FindCapacitorSet = function(CurrentSet)
+{ //console.log(this.Type);
+	if(this.Type != 'Hull') return false;
+	else
+	{
+		var TempCapSet = new CapacitorSet(this);
+	 for(var i=0, l = this.Links.length; i<l; i++)
+		{ 
+		 if(this.Links[i].Type == 'Hull' && this.Links[i].CapacitorSet !== TempCapSet)
+			{
+				//console.log('Linked to another hull capacitor');
+				TempCapSet.MergeCapicatorSets(this.Links[i].CapacitorSet);
+			}
+		}
+		this.Ship.CapacitorSets.push(TempCapSet);
+		return TempCapSet;
+	}
+}
 
 ShipComponent.prototype.Draw = function(Fragment, i, z)
 {	
@@ -522,31 +611,32 @@ ShipComponent.prototype.Draw = function(Fragment, i, z)
 }
 
 ShipComponent.prototype.ColourMapping = function(val)
- { //console.log(val); // 0,0,0 -> 0,0,255 -> 0,255,255 -> 0,255,0 -> 255,255,0 -> 255,0,0 && 255,255,255
- var ToReturn; val *= 100;
- var mod = val%20;
- var div = (val - mod) / 20;
- var delta = Math.round(mod * 255 / 20);
-	switch(div) 
-	{
-		case 0: ToReturn = 'rgb(0,0,'+delta+')'; break;
-		case 1: ToReturn = 'rgb(0,'+delta+',255)'; break;
-		case 2: ToReturn = 'rgb(0,255,'+(255 - delta)+')'; break;
-		case 3: ToReturn = 'rgb('+delta+',255,0)'; break;
-		case 4: ToReturn = 'rgb(255,'+(255 -delta)+',0)'; break;
+{ //console.log(val); // 0,0,0 -> 0,0,255 -> 0,255,255 -> 0,255,0 -> 255,255,0 -> 255,0,0 && 255,255,255
+	 var ToReturn; val *= 100;
+	 var mod = val%20;
+	 var div = (val - mod) / 20;
+	 var delta = Math.round(mod * 255 / 20);
+		switch(div) 
+		{
+			case 0: ToReturn = 'rgb(0,0,'+delta+')'; break;
+			case 1: ToReturn = 'rgb(0,'+delta+',255)'; break;
+			case 2: ToReturn = 'rgb(0,255,'+(255 - delta)+')'; break;
+			case 3: ToReturn = 'rgb('+delta+',255,0)'; break;
+			case 4: ToReturn = 'rgb(255,'+(255 -delta)+',0)'; break;
 
-		default: ToReturn = 'rgb(255,255,255)'; break;
-	} //console.log(ToReturn);
-	 return ToReturn;
+			default: ToReturn = 'rgb(255,255,255)'; break;
+		} //console.log(ToReturn);
+		 return ToReturn;
 }
 
 ShipComponent.prototype.GetLinkLoss = function(stat)
-{ var Sum = 0, MyLevel =this.Stats[stat]['Level'];
-	for(var i =0, l=this.Links.length; i<l; i++) 
-		{
-			Leak = MyLevel*this.Links[i].Stats[stat]['Rate']/l;
-			this.Links[i].Stats[stat]['Update'] += Leak;
-			Sum += Leak;
-		}
- return Sum; // 6 for maximum number of connections // should be 4 for 2D ships.
+{
+	 var Sum = 0, MyLevel =this.Stats[stat]['Level'];
+		for(var i =0, l=this.Links.length; i<l; i++) 
+			{
+				Leak = MyLevel*this.Links[i].Stats[stat]['Rate']/l;
+				this.Links[i].Stats[stat]['Update'] += Leak;
+				Sum += Leak;
+			}
+	 return Sum; // 6 for maximum number of connections // should be 4 for 2D ships.
 }
