@@ -16,6 +16,10 @@ Tasks:
 - Design comparison stuff with tables...
 - default designs should be available to load
 
+- Added Hybrid Hull-Capacitor. New energy system provides instantaneous energy to systems.
+- Added meter to show Capactior levels.
+- Outstanding: capacitorset generation bug.
+
 
 
 -- help (sub)page needs more detail.
