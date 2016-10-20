@@ -14,7 +14,7 @@ StateClass.prototype.EnterState = function() { //console.log('State->EnterState:
 
 StateClass.prototype.ExitState= function() { $('#'+this.Name).hide(200); }//console.log('State->ExitState: '+this.Name)
 
-StateClass.prototype.Refresh = function() {  console.log('State->RefreshState: '+this.Name) }
+StateClass.prototype.Refresh = function() {  console.log('TO IMPLEMENT State->RefreshState: '+this.Name) }
 
 
 var ClientClass = function()
@@ -27,20 +27,20 @@ var ClientClass = function()
 ClientClass.prototype.Login = function(Args) 
 {
 	console.log('HTTPS please, everywhere.');
-	var RespFunc = function() {return Client.ChangeTo('SpacePort')}
-	Client.ajaxCall(Args,RespFunc); // this should change to default page if spaceport was not chosen...
+	var RespFunc = function() {return Client.ChangeTo('SpacePort')} // this should not be using the 'Client' variable, if possible
+	this.ajaxCall(Args,RespFunc); // this should change to default page if spaceport was not chosen...
 	
 }
 
 ClientClass.prototype.SetUsername = function(Name)
-{ if(Name !== Client.Player.Name) Client.Player.Name = Name; }
+{ if(Name !== this.Player.Name) this.Player.Name = Name; }
 
 
 ClientClass.prototype.Logout = function()
 {
-	var RespFunc = function() {return function() {Client.ChangeTo('Login')} }
-	Client.ajaxCall('Logout=true',RespFunc);
-	Client.Player.Name = '';
+	var RespFunc = function() {return function() {this.ChangeTo('Login')} }
+	this.ajaxCall('Logout=true',RespFunc);
+	this.Player.Name = '';
 }
 
 ClientClass.prototype.ChangeTo = function(NewState, ExtraArgs)
@@ -52,7 +52,7 @@ ClientClass.prototype.ChangeTo = function(NewState, ExtraArgs)
 	{ 	
 //		console.log('in find and run: '+NewState);
 		Client.State.ExitState(); 
-		Client.PrevState = Client.State;
+		Client.PrevState = this.State;
 
 		if(typeof(window[NewState]) === 'function') 
 		{Client.State = new window[NewState]();} 
@@ -72,7 +72,7 @@ ClientClass.prototype.ChangeTo = function(NewState, ExtraArgs)
 		{	//console.log(NewState+' newstate not found');
 			var SendArgs = 'tab='+NewState
 			if(ExtraArgs != undefined) { SendArgs += '&'+ExtraArgs;} 
-			Client.ajaxCall(SendArgs, FunctionBinder(this, FindAndRunEnterState));
+			this.ajaxCall(SendArgs, FunctionBinder(this, FindAndRunEnterState));
 		}
 	}
 	else 
@@ -81,32 +81,6 @@ ClientClass.prototype.ChangeTo = function(NewState, ExtraArgs)
 	}
 }
 ClientClass.prototype.ErrorOutput = function (output) {alert(output);} // should be in window error message
-
-ClientClass.prototype.ajaxCall = function (data, ResponceFunc){
-//	var Client = this; // using global Client defn.
-	$.ajax({url: "./index.php",
-	type:'POST',
-	data:'ajax=true&'+data,
-	statusCode: {
-		404: function() {$("#PageContainer").append("<div class='error content' id='"+tab+"'>Error: Tab "+tab+" not found</div>")}
-	},
-	beforeSend: function() { $("#loading").show(); //console.log('Before Send: '+data+ ' Client.state.name is : '+Client.State.Name ); //console.log(Client)
-	},
- 	success:function(data) 
-	  {	//console.log('After Send: resp func='+ResponceFunc);
-		Client.evalJSON(data);
-		$("#loading").hide();
-		//$("#"+tab).show(200); // content arrives hidden, then this sets the display 
-		if(	!Client.BoolPreventCallback && typeof(ResponceFunc) === 'function') {/*console.log('.ajax->ResponceFunc '+ResponceFunc);*/ ResponceFunc(); }
-		else { Client.BoolPreventCallback = false;}
-	  },
-	});
-}
-
-ClientClass.prototype.PreventCallback = function() { //console.log('Client->PreventCallback');
-	this.BoolPreventCallback = true;
-}
-
 
 ClientClass.prototype.evalJSON = function(data){ //console.log('eval:' + typeof(data)+ 'data: '+data+' '); 
 	try{var node = JSON.parse(data); } catch(err) {console.log(err+ '; data: '+data); } //*Note, JSON data should include a node array.* /
@@ -118,6 +92,31 @@ ClientClass.prototype.evalJSON = function(data){ //console.log('eval:' + typeof(
 		return true;
 		}
 	catch(err) {console.log(err);}
+}
+
+ClientClass.prototype.ajaxCall = function (data, ResponceFunc){
+//	var Client = this; // using global Client defn.
+	$.ajax({url: "./index.php",
+	type:'POST',
+	data:'ajax=true&'+data,
+	statusCode: {
+		404: function() {$("#PageContainer").append("<div class='error content' id='"+tab+"'>Error: Tab "+tab+" not found</div>")}
+	},
+	beforeSend: function() { $("#loading").show(); //console.log('Before Send: '+data+ ' this.state.name is : '+this.State.Name ); //console.log(Client)
+	},
+ 	success:function(data) 
+	  {	//console.log('After Send: resp func='+ResponceFunc);
+		Client.evalJSON(data);
+		$("#loading").hide();
+		//$("#"+tab).show(200); // content arrives hidden, then this sets the display 
+		if(	!this.BoolPreventCallback && typeof(ResponceFunc) === 'function') {/*console.log('.ajax->ResponceFunc '+ResponceFunc);*/ ResponceFunc(); }
+		else { this.BoolPreventCallback = false;}
+	  },
+	});
+}
+
+ClientClass.prototype.PreventCallback = function() { //console.log('Client->PreventCallback');
+	this.BoolPreventCallback = true;
 }
 
 ClientClass.prototype.HandleNode = function (node, i){

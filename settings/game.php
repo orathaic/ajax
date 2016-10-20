@@ -151,7 +151,7 @@ class AjaxWars extends Game
 	?> 
 	<!doctype html><html><head>
 	 <meta charset="utf-8" />
-	 <title><? echo $title; ?></title>
+	 <title><?php echo $title; ?></title>
 	 <meta name="description" content="<? echo $this->name;?> is an free online role play game." />
 	 <meta name="keywords" content="browser based mmo" />
 		<link rel="shortcut icon" href="pix/ajax.ico" />
