@@ -92,6 +92,7 @@ class Technology extends content
 		$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable System")->addattr("id","System")->addattr("draggable","false");
 		$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable OxygenGen")->addattr("id","OxygenGen")->addattr("draggable","false");
 		$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable PowerSupply")->addattr("id","PowerSupply")->addattr("draggable","false");
+		$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable RubbishBin")->addattr("id","RubbishBin")->addattr("draggable","false");
 
 	$DesignNode->addchild("div")->addattr("class","hidden")->addattr("id","SimData");
 	$DesignNode->addchild("div")->addattr("class","DropTarget")->addattr("id","DesignCanvas");

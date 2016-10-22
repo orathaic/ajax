@@ -73,7 +73,7 @@ Technology.prototype.EnterState = function ()
 				Client.ObjDesign.MultiAddComponents(Design[0].Components)
 				Client.ObjDesign.ReDrawComponents();
 				$("#LoadDesignFormContainer").hide(200);
-				$('#EditDesign').trigger('click');								
+				Client.ObjDesign.EnableEditMode(Client.ObjDesign);								
 				} 
 		   });
 			break;
@@ -97,72 +97,11 @@ Technology.prototype.EnterState = function ()
 		case 'EditDesign': {
 						 if( $(this).attr("value") == "Edit Design")
 						{
-							if(!Client.hasOwnProperty('ObjDesign') ) { Client.ErrorOutput('Nothing to edit, please try creating a new design.'); console.log(' no object'); return} else
-							Client.ObjDesign.EditMode = true;	
-							$('#DesignManager').hide(100);
-							$('#DesignTesting').show(100);
-							$(".DesignUnit", "#Design").attr("draggable","true");
-							$(".Dragable").on('click.design', function(event){ Client.ObjDesign.PlaceMode(event.target.id); $("div#DesignCanvas").css("cursor", $(event.target).css("background-image")+",auto" ) } );
-							$(".Dragable").on("dragstart.design",function (event){ event.originalEvent.dataTransfer.setData("Text",event.target.id); });
-							$("#DesignCanvas").on('mousemove.design', function(event) {
-								var top = event.originalEvent.pageY, left = event.originalEvent.pageX;
-								top = top - $("#DesignCanvas").offset().top; left = left - $("#DesignCanvas").offset().left;
-								top = top - top%20; left = left - left%20;
-								$("#DesignHighligther").css({'top':(top+57)+'px','left':(left+43)+'px', 'z-index':-1, 'opacity':  0.8 ,'background-color':'darkgreen' }).show(200);								
-							})
-							$(".DropTarget", "#Design").on("drop.design",function (event){
-								event.preventDefault(); 
-								var top = event.originalEvent.pageY, left = event.originalEvent.pageX;
-								top = top - $("#DesignCanvas").offset().top; left = left - $("#DesignCanvas").offset().left;
-								top = top - top%20; left = left - left%20;
-								var data=event.originalEvent.dataTransfer.getData("Text");
-								if( $("#"+data).hasClass("DesignUnit")  )
-								{
-									Client.ObjDesign.AddComponent( (left/20),(top/20),Client.ObjDesign.Zed,$("#"+data).attr("id") );
-									Client.ObjDesign.ReDrawComponents();
-								}
-								else if( $("#"+data).hasClass("ShipElement") )
-								{
-									Client.ObjDesign.MoveComponent( (left/20),(top/20),Client.ObjDesign.Zed,$("#"+data).attr("id").replace("Component","") ); 
-									Client.ObjDesign.ReDrawComponents();
-								}
-							});
-							$(".DropTarget", "#Design").on("dragover.design", function (event){event.preventDefault();});
-							$(".DropTarget", "#Design").on('click.design', function(event) { 
-								var top = event.originalEvent.pageY, left = event.originalEvent.pageX; 
-								top = top - $("#DesignCanvas").offset().top + 10; left = left - $("#DesignCanvas").offset().left + 10;
-								top = top - top%20; left = left - left%20;
-								if(Client.ObjDesign !== undefined && Client.ObjDesign.ToPlace !== 'none')
-								{ Client.ObjDesign.AddComponent( (left/20),(top/20),Client.ObjDesign.Zed,Client.ObjDesign.ToPlace ); }
-								Client.ObjDesign.ReDrawComponents();
-							});
-							$(this).attr("value", "\u0298");
-							$(window).on('keypress.DesignKeys', function(event) {
-								if(event.which == 43) { Client.ObjDesign.ChangeZed(1) }// plus
-								else if(event.which == 45) {Client.ObjDesign.ChangeZed(-1) }// minus
-							});
-
-							$("#Technology").on("mousewheel", function(event) {
-								//console.log("mouse wheel - delta ("+ event.originalEvent.deltaX+','+event.originalEvent.deltaY+')');
-								Client.ObjDesign.ChangeZed(event.originalEvent.deltaY);
-								return false;
-							})
-
+							Client.ObjDesign.EnableEditMode(Client.ObjDesign);
 						}
 						else if(  $(this).attr("value") == "\u0298" ) 
 						{
-							Client.ObjDesign.EditMode = false;
-							$('#DesignTesting').hide(100);
-							$('#DesignManager').show(100);
-							$(window).off('keypress.DesignKeys');
-							$("#Technology").off("mousewheel");
-							$(".DesignUnit", "#Design").add('.ShipElement',"#DesignCanvas").attr("draggable","false");
-							$(".Dragable").off('.design');
-							$(".DropTarget", "#Design").off(".design");
-							$("#DesignCanvas").off('mousemove.design');
-							$("div#DesignCanvas").css("cursor", "auto" ) ;
-							if( 'IntervalTimer' in window) {clearInterval(IntervalTimer); $("#TestDesign").attr("value","Test Design"); }//stop any current testing // This should not duplicate testdesign function? 
-							$(this).attr("value", "Edit Design");
+							Client.ObjDesign.DisableEditMode(Client.ObjDesign);
 						}
 
 
