@@ -370,7 +370,7 @@ ShipDesign.prototype.Simulate = function()
 
 
 ShipDesign.prototype.GenerateCapacitorSets = function()
-{ console.log('[GenerateCapacitorSets]');
+{ //console.log('[GenerateCapacitorSets]');
 	this.CapacitorSets = []; // this didn't fix the capacitor bug... 
 //don't *really* want to wipe all the cap sets
 	for(var i = 0; i< this.Components.length; i++)
@@ -386,7 +386,8 @@ ShipDesign.prototype.GenerateCapacitorSets = function()
 			this.Components[i].CapacitorSet = this.Components[i].FindCapacitorSet();
 		}
 }
-/*
+/*  // in case of performance issues, this can be used to reduce the work done generating capacitors sets. 
+// This function only regenerates the set belonging to the removed Cp; rather than generating all sets.
 ShipDesign.prototype.RemoveAndRegenerateCapacitorSets = function(Cp) {
 
 	SelectCapacitorSet = Cp.CapacitorSet;
@@ -464,9 +465,9 @@ CapacitorSet.prototype.MergeCapicatorSets = function(MergingComponent)
 	this.Ship.CapacitorSets.splice(this.Ship.CapacitorSets.indexOf(MergingSet),1); 
 
 //	toLog += ' = '+ this.ComponentArray.length;
-//	console.log(toLog);
-	 this.Ship.ColourMap = 'CapacitorSet'; 
-	 this.Ship.ReDrawComponents();
+/* Debug output//	console.log(toLog);
+	// this.Ship.ColourMap = 'CapacitorSet'; 
+	// this.Ship.ReDrawComponents(); */
 }
 
 var ShipComponent = function(x,y,z,Type,Ship)
@@ -565,13 +566,13 @@ ShipComponent.prototype.FindCapacitorSet = function()
 		var TempCapSet = new CapacitorSet(this);
 	 for(var i=0, l = this.Links.length; i<l; i++)
 		{ 
-		 if(this.Links[i].Type == 'Hull' && this.Links[i].CapacitorSet !== TempCapSet)
+		 if(this.Links[i].Type == 'Hull' && this.Links[i].CapacitorSet !== TempCapSet && this.Links[i].CapacitorSet !== null)
 			{
 				//console.log('Linked to another hull capacitor');
 				TempCapSet.MergeCapicatorSets(this.Links[i]);
 			}
-		} console.log('pushingto capacitorSets ');console.log(TempCapSet); 
-		this.Ship.CapacitorSets.push(TempCapSet); Client.ObjDesign.ListCapacitorSets();
+		} //console.log('pushingto capacitorSets ');console.log(TempCapSet); 
+		this.Ship.CapacitorSets.push(TempCapSet); //Debug output - Client.ObjDesign.ListCapacitorSets();
 		return TempCapSet;
 	}
 }
