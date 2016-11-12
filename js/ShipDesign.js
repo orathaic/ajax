@@ -85,8 +85,15 @@ ShipDesign.prototype.PlaceMode = function(CompType)
 		case 'Room': this.ToPlace = CompType; break;
 		case 'Hull': this.ToPlace = CompType; break;
 		case 'System': this.ToPlace = CompType; break;
+
+		case 'ThermalLaser': this.ToPlace = CompType; break;
+		case 'KineticProjectile': this.ToPlace = CompType; break;
+		case 'EMShield': this.ToPlace = CompType; break; // {toadd SuperConducting SC Shield}
+
 		case 'OxygenGen': this.ToPlace = CompType; break;
-		case 'PowerSupply': this.ToPlace = CompType; break;
+
+		case 'ThoriumPS': this.ToPlace = CompType; break; // default powersupply {toadd SolarCollector, Uranium}
+
 		case 'RubbishBin' : this.ToPlace = 'Remove'; break;
 		default: this.ToPlace = 'none';
 		} //console.log(this.ToPlace);
@@ -302,9 +309,9 @@ ShipDesign.prototype.Simulate = function()
 				Cp.Stats.Heat['Level'] -= (6 - Cp.Links.length) * 0.02 * (Cp.Stats.Heat['Level']); // bleeds excess heat into space (if less than 4 links)
 			}
 
-			if(Cp.Type == 'PowerSupply') { Cp.DistributePower(); }
+			if(Cp.Stats.Category == 'PowerSupply') { Cp.DistributePower(); }
 
-			if(Cp.Type == 'System' || Cp.Type == 'OxygenGen') { Cp.UtilisePower(i);	}			
+			if(Cp.Stats.Category == 'System') { Cp.UtilisePower(i);	}			
 				 
 			if(Cp.Stats.Energy['Level'] > 1.0) 
 				{ Cp.Stats.Heat['Level'] += (Cp.Stats.Energy['Level'] - 1.0)/2; Cp.Stats.Energy['Level'] -= (Cp.Stats.Energy['Level'] - 1.0)/2} //converts excess energy into heat
@@ -312,7 +319,7 @@ ShipDesign.prototype.Simulate = function()
 
 			//moved into utilise energy	if(Cp.Type == 'OxygenGen' && Cp.Stats.Energy.Level > 0.1) {Cp.Stats.O2['Level'] = Math.min(1.0, (Cp.Stats.O2['Level'] +0.5)); Cp.Stats.Energy.Level -= 0.05; Cp.Stats.Heat.Level += 0.05}
 			//moved into a function	/*if(Cp.Type == 'System' && Cp.Stats.Energy.Level > 0.1 && Cp.Stats.O2.Level > 0.05) { Cp.Stats.Energy.Level -= 0.1; Cp.Stats.Heat.Level += 0.1; Cp.Stats.O2.Level -= 0.05;  this.SystemsActive++;} */
-			if(Cp.Type == 'System' || Cp.Type == 'OxygenGen') {TotalSystems++;}
+			if(Cp.Stats.Category == 'System') {TotalSystems++;}
 
 			if(Cp.Stats.Heat['Level'] > 1.0) 
 			{ 
@@ -476,8 +483,7 @@ var ShipComponent = function(x,y,z,Type,Ship)
 	this.y = y;
 	this.z = z;
 	this.Type = Type;
-// types: red, yellow, blue -
-/* (human) space, system (weapon, shield, heat sink, cloak, thrust, warpdrive, power supply), power (rating), armour  */
+/*// types: (human) space, system (weapon: {Thermal Laser, Kinetic Projectile}, shield: {EMShield, #SCShield}, #heat sink, #cloak, #thrust, warpdrive, power supply:{ThoriumPS, UraniumPS}), power (rating), armour  */
 	this.Ship = Ship;
 	this.Links = new Array();
 	this.FindLinks();
@@ -499,32 +505,52 @@ ShipComponent.prototype.InitStats = function(Type)
 {
 	switch(Type)
 	 {
-		case 'Room':		return {"O2": {"Level": 0.5, "Update":0.0, "Rate":0.98},
+		case 'Room':					return {"O2": {"Level": 0.5, "Update":0.0, "Rate":0.98},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.0 },
 									"Heat": {"Level": 0.4, "Update": 0.0, "Rate": 0.30},
-									"Armour": 0.1, "BgImage": "url(./pix/Room.png)"}; // Internal Ship Space
+									"Armour": 0.1, "Category": "InternalSpace", "BgImage": "url(./pix/Room.png)"}; // Internal Ship Space
 
-		case 'Hull': 		return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.01},
+		case 'Hull': 					return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.01},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.0 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.80},
-									"Armour": 0.9, "BgImage": "url(./pix/Hull.png)"}; // Hull
+									"Armour": 0.9, "Category": "Hull", "BgImage": "url(./pix/Hull.png)"}; // Hull
 
-		case 'System':		return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
+		case 'System':					return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.1 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
-									"Armour": 0.1, "BgImage": "url(./pix/System.png)"}; // System
+									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/System.png)"}; // System
 
-		case 'OxygenGen': 	return {"O2": {"Level": 1.0, "Update":0.0, "Rate":0.94},
+		case 'ThermalLaser':				return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
+									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 1.0 },
+									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
+									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/ThermalLaser.png)"}; // Thermal Laser
+
+		case 'KineticProjectile':			return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
+									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.3 },
+									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
+									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/KineticProjectile.png)"}; // Kinetic Projectile
+
+		case 'EMShield':				return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
+									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 1.0 },
+									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
+									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/EMShield.png)"}; // Electro-Magnetic Shield (not superconducting)
+
+		case 'OxygenGen': 				return {"O2": {"Level": 1.0, "Update":0.0, "Rate":0.94},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.05 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.60},
-									"Armour": 0.1, "BgImage": "url(./pix/OxygenGen.png)"}; // O2 generator
+									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/OxygenGen.png)"}; // O2 generator
 
-		case 'PowerSupply': return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.78},
-									"Energy": {"Level": 1.0, "Update": 0.0, "Need": 0.0 },
+		case 'PowerSupply': 				return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.78},
+									"Energy": {"Level": 1.0, "Update": 0.0, "Need": -0.4 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.60},
-									"Armour": 0.1, "BgImage": "url(./pix/PowerSupply.png)"}; // Power Unit
+									"Armour": 0.1, "Category": "PowerSupply", "BgImage": "url(./pix/PowerSupply.png)"}; // Power Unit
 
-		default: 			return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.0},
+		case 'ThoriumPS': 				return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.78},
+									"Energy": {"Level": 1.0, "Update": 0.0, "Need": -0.4 },
+									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.60},
+									"Armour": 0.1, "Category": "PowerSupply", "BgImage": "url(./pix/ThoriumPS.png)"}; // Thorium Power Supply
+
+		default: 					return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.0},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need":0.0 },
 									"Heat": {"Level": 0.0, "Update": 0.0, "Rate":0.0},
 									"Armour": 0.01, "BgImage": "rgb(0,0,0)"};
@@ -657,18 +683,18 @@ ShipComponent.prototype.GetNoOfCapacitorConnections = function()
 
 ShipComponent.prototype.DistributePower = function()
 { var sum =0;
-	if(this.Type == 'PowerSupply') { 
+	if(this.Stats.Category == 'PowerSupply') { 
 		for(var i = 0, l = this.Links.length; i < l; i++)
 		{
 			if(this.Links[i].CapacitorSet) 
-			{ this.Links[i].CapacitorSet.UpdateCapacitor += 0.4/ this.GetNoOfCapacitorConnections(); sum += 0.4/ this.GetNoOfCapacitorConnections(); }
+			{ this.Links[i].CapacitorSet.UpdateCapacitor -= this.Stats.Energy.Need/ this.GetNoOfCapacitorConnections(); sum += 0.4/ this.GetNoOfCapacitorConnections(); }
 		} 
 	} //console.log("Distributing: "+sum);
 }
 
 ShipComponent.prototype.UtilisePower = function(ElementNumber)
 { var AvailableEnergy = 0;
-	if(this.Type == 'System' || this.Type == 'OxygenGen') { 
+	if(this.Stats.Category == 'System') { 
 		for(var i = 0, l = this.Links.length; i < l; i++)
 		{
 			if(this.Links[i].CapacitorSet) 

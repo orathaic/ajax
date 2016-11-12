@@ -89,9 +89,19 @@ class Technology extends content
 	$ColumnleftNode = &$DesignNode->addchild("div")->addattr("id","columnleft");
 		$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable Hull")->addattr("id","Hull")->addattr("draggable","false");
 		$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable Room")->addattr("id","Room")->addattr("draggable","false");
-		$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable System")->addattr("id","System")->addattr("draggable","false");
+
+		$SysFoldOut = &$ColumnleftNode->addchild('div')->addattr("class", "DesignUnitFoldout");
+			$SysFoldOut->addchild('div')->addattr("class","DesignUnit Inline-Block Dragable ThermalLaser")->addattr("id","ThermalLaser")->addattr("draggable","false");
+			$SysFoldOut->addchild('div')->addattr("class","DesignUnit Inline-Block Dragable KineticProjectile")->addattr("id","KineticProjectile")->addattr("draggable","false");
+			$SysFoldOut->addchild('div')->addattr("class","DesignUnit Inline-Block Dragable EMShield")->addattr("id","EMShield")->addattr("draggable","false");
+
+		$ColumnleftNode->addchild('div')->addattr("class","DesignUnitMenu Dragable System")->addattr("id","System")->addattr("draggable","false");
 		$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable OxygenGen")->addattr("id","OxygenGen")->addattr("draggable","false");
-		$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable PowerSupply")->addattr("id","PowerSupply")->addattr("draggable","false");
+
+		$PSFoldOut = &$ColumnleftNode->addchild('div')->addattr("class", "DesignUnitFoldout");
+			$PSFoldOut->addchild('div')->addattr("class","DesignUnit Inline-Block Dragable ThoriumPS")->addattr("id","ThoriumPS")->addattr("draggable","false");
+
+		$ColumnleftNode->addchild('div')->addattr("class","DesignUnitMenu Dragable PowerSupply")->addattr("id","PowerSupply")->addattr("draggable","false");
 		$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable RubbishBin")->addattr("id","RubbishBin")->addattr("draggable","false");
 
 	$DesignNode->addchild("div")->addattr("class","hidden")->addattr("id","SimData");

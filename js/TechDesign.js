@@ -69,10 +69,16 @@ Technology.prototype.EnterState = function ()
 				$("#loading").hide(); 
 				var Design = JSON.parse(data); //console.log(Design); 
 				$("#TechHeader").text("Design Name: "); $("#NameHeader").text(Design[0].Name);
+				
+				var EditMode = false;				
+				if(Client.ObjDesign) {EditMode = Client.ObjDesign.EditMode;} // store the editmode and apply to the new design object
+				
 				Client.ObjDesign = new ShipDesign(Design[0].Name, Design[1], Design[2]); //should the client handle this? probably...
 				Client.ObjDesign.MultiAddComponents(Design[0].Components)
 				Client.ObjDesign.ReDrawComponents();
+				Client.ObjDesign.EditMode = EditMode;
 				$("#LoadDesignFormContainer").hide(200);
+				//console.log('EditMode: '+Client.ObjDesign.EditMode);
 				Client.ObjDesign.EnableEditMode(Client.ObjDesign);								
 				} 
 		   });
