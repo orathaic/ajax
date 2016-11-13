@@ -314,6 +314,7 @@ input.HelpText
  height:20px;
  min-width:20px;
  border:1px solid #ddd;
+ display:none;
 }
 
 .Inline-Block

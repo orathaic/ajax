@@ -200,6 +200,12 @@ ShipDesign.prototype.EnableEditMode = function(Caller)
 		$('#DesignManager').hide(100);
 		$('#DesignTesting').show(100);
 		$(".DesignUnit", "#Design").attr("draggable","true");
+		$(".DesignUnitMenu", "#Design").on("click.design",function(event) {
+			 var TargetId = $("div#"+event.currentTarget.id+"Foldout");
+			$(".DesignUnitFoldout").not(TargetId).hide(200);		
+			TargetId.show(200); 
+			});
+
 		$(".Dragable").on('click.design', function(event){ Caller.PlaceMode(event.target.id); $("div#DesignCanvas").css("cursor", $(event.target).css("background-image")+",auto" ) } );
 		$(".Dragable").on("dragstart.design",function (event){ event.originalEvent.dataTransfer.setData("Text",event.target.id); });
 		$("#DesignCanvas").on('mousemove.design', function(event) {
@@ -257,6 +263,7 @@ ShipDesign.prototype.DisableEditMode = function(Caller)
 	$(window).off('keypress.DesignKeys');
 	$("#Technology").off("mousewheel");
 	$(".DesignUnit", "#Design").add('.ShipElement',"#DesignCanvas").attr("draggable","false");
+	$(".DesignUnitMenu").off('.design');
 	$(".Dragable").off('.design');
 	$(".DropTarget", "#Design").off(".design");
 	$("#DesignCanvas").off('mousemove.design');
@@ -521,7 +528,7 @@ ShipComponent.prototype.InitStats = function(Type)
 									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/System.png)"}; // System
 
 		case 'ThermalLaser':				return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
-									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 1.0 },
+									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.4 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
 									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/ThermalLaser.png)"}; // Thermal Laser
 
@@ -531,7 +538,7 @@ ShipComponent.prototype.InitStats = function(Type)
 									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/KineticProjectile.png)"}; // Kinetic Projectile
 
 		case 'EMShield':				return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
-									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 1.0 },
+									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.4 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
 									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/EMShield.png)"}; // Electro-Magnetic Shield (not superconducting)
 
