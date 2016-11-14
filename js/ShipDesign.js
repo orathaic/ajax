@@ -474,7 +474,7 @@ var CapacitorSet = function (FirstComponent)
 	this.ComponentArray = new Array(FirstComponent);
 	this.Ship = FirstComponent.Ship;
 	this.MaxCapacitor = this.ComponentArray.length * 1; //(1 is max energy per square)
-	this.CurrentCapacitor = 0; // should be derived from the first component's current energy..
+	this.CurrentCapacitor = FirstComponent.Stats.Energy.Level; // should be derived from the first component's current energy..
 	this.UpdateCapacitor = 0;
 	return this;
 }
