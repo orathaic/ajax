@@ -293,25 +293,34 @@ input.HelpText
 
 
 #DesignHelp {
-  background-color: rgba(70, 70, 10, .60);
+ background-color: rgba(70, 70, 10, .60);
  position:absolute;
  top:17px;
  left:660px;
 }
 
-.DesignUnit
+.DesignUnit, .DesignUnitMenu
 {
  height:20px;
- width:20px;
+ min-width:20px;
  border:1px solid #ddd;
 }
-.DesignEquip
+
+.DesignUnitFoldout
 {
+ position:absolute;
+ left:43px;
+ z-index:1;
  height:20px;
- width:20px;
+ min-width:20px;
  border:1px solid #ddd;
+ display:none;
+}
+
+.Inline-Block
+{
  display:inline-block;
- z-index:3;
+ z-index:1;
 }
 
 
@@ -377,8 +386,30 @@ input.HelpText
 	
 	}
 
+#ToolTip
+{
+ margin: 8px;
+ background-color: rgba(1, 1, 1, .80);
+ border: 3px rgba(70, 70, 70, .70);
+ border-radius:5px;
+ position:absolute;
+ bottom:10px;
+ left:10px;
+ z-index:2;
+ min-width:205px;
+}
 
+#ToolTipData
+{
+  margin:5px;
+  white-space: nowrap;
+}
 
+.ToolTipDataImg
+{
+ position:absolute;
+ float:right;
+}
 .ShipElement
 {
  height:20px;
@@ -389,8 +420,14 @@ input.HelpText
 .Hull {background-image:url(../pix/Hull.png);}
 .Room {background-image:url(../pix/Room.png);}
 .System {background-image:url(../pix/System.png);}
+.ThermalLaser {background-image:url(../pix/ThermalLaser.png);}
+.KineticProjectile {background-image:url(../pix/KineticProjectile.png);}
+.EMShield {background-image:url(../pix/EMShield.png);}
+
 .OxygenGen {background-image:url(../pix/OxygenGen.png);}
 .PowerSupply {background-image:url(../pix/PowerSupply.png);}
+.ThoriumPS {background-image:url(../pix/ThoriumPS.png);}
+
 .RubbishBin {background-image:url(../pix/RubbishBin.png);}
 
 .WeaponSystem {background-image:url(../pix/WeaponSystem.png);}

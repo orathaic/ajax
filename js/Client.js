@@ -58,7 +58,7 @@ ClientClass.prototype.ChangeTo = function(NewState, ExtraArgs)
 		{Client.State = new window[NewState]();} 
 		else {Client.State = new StateClass(NewState);}
 		Client.State.EnterState();
-		Client.State.Name = NewState;
+		Client.State.Name = NewState; // this masks a bug!
 		location.hash = '#'+Client.State.Name;
 	}
 

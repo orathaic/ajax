@@ -41,7 +41,7 @@ class Game
 		
         //        $this->db_user = $this->db_table = 'colony_main'; // connects to the database
 
-         $this->mysqli = new mysqli("localhost", $this->db_user, $this->db_pass, $this->db_table); 
+         $this->mysqli = new mysqli("192.168.1.11", $this->db_user, $this->db_pass, $this->db_table); 
 		if (mysqli_connect_errno()) {
     		printf("Connect failed: %s\n", mysqli_connect_error());
     		exit();

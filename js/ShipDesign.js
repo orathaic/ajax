@@ -85,8 +85,15 @@ ShipDesign.prototype.PlaceMode = function(CompType)
 		case 'Room': this.ToPlace = CompType; break;
 		case 'Hull': this.ToPlace = CompType; break;
 		case 'System': this.ToPlace = CompType; break;
+
+		case 'ThermalLaser': this.ToPlace = CompType; break;
+		case 'KineticProjectile': this.ToPlace = CompType; break;
+		case 'EMShield': this.ToPlace = CompType; break; // {toadd SuperConducting SC Shield}
+
 		case 'OxygenGen': this.ToPlace = CompType; break;
-		case 'PowerSupply': this.ToPlace = CompType; break;
+
+		case 'ThoriumPS': this.ToPlace = CompType; break; // default powersupply {toadd SolarCollector, Uranium}
+
 		case 'RubbishBin' : this.ToPlace = 'Remove'; break;
 		default: this.ToPlace = 'none';
 		} //console.log(this.ToPlace);
@@ -192,7 +199,13 @@ ShipDesign.prototype.EnableEditMode = function(Caller)
 		Caller.EditMode = true;	
 		$('#DesignManager').hide(100);
 		$('#DesignTesting').show(100);
-		$(".DesignUnit", "#Design").attr("draggable","true");
+		$(".DesignUnit", "#Design").attr("draggable","true").hover( function(event) {Client.ObjDesign.ComponentStatsToolTip(event)}, function(event) {/*$("#ToolTip").hide(200);*/} );
+		$(".DesignUnitMenu", "#Design").on("click.design",function(event) {
+			 var TargetId = $("div#"+event.currentTarget.id+"Foldout");
+			$(".DesignUnitFoldout").not(TargetId).hide(200);		
+			TargetId.show(200); 
+			});
+		$(".DesignUnitFoldout").on('click.design', function(event) { $(event.currentTarget).hide(200); });
 		$(".Dragable").on('click.design', function(event){ Caller.PlaceMode(event.target.id); $("div#DesignCanvas").css("cursor", $(event.target).css("background-image")+",auto" ) } );
 		$(".Dragable").on("dragstart.design",function (event){ event.originalEvent.dataTransfer.setData("Text",event.target.id); });
 		$("#DesignCanvas").on('mousemove.design', function(event) {
@@ -233,7 +246,7 @@ ShipDesign.prototype.EnableEditMode = function(Caller)
 			if(event.which == 43) { Client.ObjDesign.ChangeZed(1) }// plus
 			else if(event.which == 45) {Client.ObjDesign.ChangeZed(-1) }// minus
 		});
-
+		console.log('mouse scroll');
 		$("#Technology").on("mousewheel", function(event) {
 			//console.log("mouse wheel - delta ("+ event.originalEvent.deltaX+','+event.originalEvent.deltaY+')');
 			Client.ObjDesign.ChangeZed(event.originalEvent.deltaY);
@@ -243,19 +256,42 @@ ShipDesign.prototype.EnableEditMode = function(Caller)
 }
 
 ShipDesign.prototype.DisableEditMode = function(Caller) 
-{
+{ //console.log('disabling editmode');
 	Caller.EditMode = false;
 	$('#DesignTesting').hide(100);
 	$('#DesignManager').show(100);
 	$(window).off('keypress.DesignKeys');
 	$("#Technology").off("mousewheel");
-	$(".DesignUnit", "#Design").add('.ShipElement',"#DesignCanvas").attr("draggable","false");
+	$(".DesignUnit", "#Design").off("mouseenter mouseleave").add(".ShipElement","#DesignCanvas").attr("draggable","false");
+	$(".DesignUnitMenu").off('.design');
 	$(".Dragable").off('.design');
+	$(".DesignUnitFoldout").off('.design');
 	$(".DropTarget", "#Design").off(".design");
 	$("#DesignCanvas").off('mousemove.design');
 	$("div#DesignCanvas").css("cursor", "auto" ) ;
 	if( 'IntervalTimer' in window) {clearInterval(IntervalTimer); $("#TestDesign").attr("value","Test Design"); }//stop any current testing // This should not duplicate testdesign function? 
 	$('#EditDesign').attr("value", "Edit Design");
+}
+
+ShipDesign.prototype.ComponentStatsToolTip = function(event)
+{ // should get html from the server, and fill it with data once? 
+//console.log('in tooltip function');
+	var DummyCp = new ShipComponent(0,0,0, event.currentTarget.id, new ShipDesign('Dummy','public','public'));
+	var MyStats = DummyCp.InitStats(DummyCp.Type);
+//console.log(MyStats);
+
+	var ToAppend = '<span>'+MyStats.Name+':</span><span class=\'ShipElement ToolTipDataImg '+DummyCp.Type+'\' ></span>';
+		if(MyStats.Category !== 'PowerSupply')
+			{ ToAppend += '<div>Energy needs: '+ MyStats.Energy.Need+'</div>';}
+		else if(MyStats.Category === 'PowerSupply')
+			{ToAppend += '<div>Energy production: '+ (0-MyStats.Energy.Need)+'</div>';}
+
+		ToAppend += '<div>Heat Transfer Rate: '+ MyStats.Heat.Rate+'</div>'+
+		'<div>O2 Transfer Rate: '+ MyStats.O2.Rate+'</div>'+
+		'<div>Armour Amount: '+ MyStats.Armour+'</div>';
+
+	$("#ToolTipData").html(ToAppend);
+	$("#ToolTip").show(200);
 }
 
 ShipDesign.prototype.TestDesign = function(Button)
@@ -302,9 +338,9 @@ ShipDesign.prototype.Simulate = function()
 				Cp.Stats.Heat['Level'] -= (6 - Cp.Links.length) * 0.02 * (Cp.Stats.Heat['Level']); // bleeds excess heat into space (if less than 4 links)
 			}
 
-			if(Cp.Type == 'PowerSupply') { Cp.DistributePower(); }
+			if(Cp.Stats.Category == 'PowerSupply') { Cp.DistributePower(); }
 
-			if(Cp.Type == 'System' || Cp.Type == 'OxygenGen') { Cp.UtilisePower(i);	}			
+			if(Cp.Stats.Category == 'System') { Cp.UtilisePower(i);	}			
 				 
 			if(Cp.Stats.Energy['Level'] > 1.0) 
 				{ Cp.Stats.Heat['Level'] += (Cp.Stats.Energy['Level'] - 1.0)/2; Cp.Stats.Energy['Level'] -= (Cp.Stats.Energy['Level'] - 1.0)/2} //converts excess energy into heat
@@ -312,7 +348,7 @@ ShipDesign.prototype.Simulate = function()
 
 			//moved into utilise energy	if(Cp.Type == 'OxygenGen' && Cp.Stats.Energy.Level > 0.1) {Cp.Stats.O2['Level'] = Math.min(1.0, (Cp.Stats.O2['Level'] +0.5)); Cp.Stats.Energy.Level -= 0.05; Cp.Stats.Heat.Level += 0.05}
 			//moved into a function	/*if(Cp.Type == 'System' && Cp.Stats.Energy.Level > 0.1 && Cp.Stats.O2.Level > 0.05) { Cp.Stats.Energy.Level -= 0.1; Cp.Stats.Heat.Level += 0.1; Cp.Stats.O2.Level -= 0.05;  this.SystemsActive++;} */
-			if(Cp.Type == 'System' || Cp.Type == 'OxygenGen') {TotalSystems++;}
+			if(Cp.Stats.Category == 'System') {TotalSystems++;}
 
 			if(Cp.Stats.Heat['Level'] > 1.0) 
 			{ 
@@ -357,13 +393,17 @@ ShipDesign.prototype.Simulate = function()
 		 CapTotals.MaxLvl += this.CapacitorSets[i].MaxCapacitor;
 		}
 	var AvgText = 'Avg O2 lvl: ' + Math.round(AverageO2*100)+'%'; // update the O2 avg counter.
+	var CapPercentage = Math.round(CapTotals.CurrentLvl / CapTotals.MaxLvl );
 	//AvgText += ' Avg Energy lvl: ' + Math.round(AverageEnergy*100)+'%';
-	AvgText += ' # of cap sets: ' + this.CapacitorSets.length;
-	AvgText += ' Cap totals: ' + Math.round(CapTotals.CurrentLvl) +'/'+CapTotals.MaxLvl;
-	AvgText += ' Avg Heat lvl: ' + Math.round(AverageHeat*100)+'%'
-	AvgText += ' Sys Active: '+this.SystemsActive + '/' + TotalSystems;
+//	AvgText += ' # of cap sets: ' + this.CapacitorSets.length;
+//	AvgText += ' Cap totals: ' + Math.round(CapTotals.CurrentLvl) +'/'+CapTotals.MaxLvl;
+//	AvgText += ' Avg Heat lvl: ' + Math.round(AverageHeat*100)+'%'
+//	AvgText += ' Sys Active: '+this.SystemsActive + '/' + TotalSystems;
+	AvgText += ' Cap total: ' +Math.round(CapTotals.CurrentLvl, 2);
+	AvgText += ' Cap max: ' +CapTotals.MaxLvl;
+
 	$('#SimData').text(AvgText);
-		var CapPercentage = Math.round(CapTotals.CurrentLvl / CapTotals.MaxLvl );
+		
 	$('#MeterMask').height( (1 - CapPercentage) * 76);
 	this.ReDrawComponents();
 }
@@ -435,13 +475,15 @@ return true;
 
 var CapacitorSet = function (FirstComponent) 
 {
+//	if( FirstComponent.Stats.Energy.Level  >= 0 &&) // TEST whether level is set to a number
+
 	this.ComponentArray = new Array(FirstComponent);
 	this.Ship = FirstComponent.Ship;
 	this.MaxCapacitor = this.ComponentArray.length * 1; //(1 is max energy per square)
-	this.CurrentCapacitor = 0; // should be derived from the first component's current energy..
+	this.CurrentCapacitor = FirstComponent.Stats.Energy.Level; // should be derived from the first component's current energy..
 	this.UpdateCapacitor = 0;
 	return this;
-}
+}// .Stats.Energy.Level
 
 CapacitorSet.prototype.MergeCapicatorSets = function(MergingComponent) 
 {	
@@ -476,8 +518,7 @@ var ShipComponent = function(x,y,z,Type,Ship)
 	this.y = y;
 	this.z = z;
 	this.Type = Type;
-// types: red, yellow, blue -
-/* (human) space, system (weapon, shield, heat sink, cloak, thrust, warpdrive, power supply), power (rating), armour  */
+/*// types: (human) space, system (weapon: {Thermal Laser, Kinetic Projectile}, shield: {EMShield, #SCShield}, #heat sink, #cloak, #thrust, warpdrive, power supply:{ThoriumPS, UraniumPS}), power (rating), armour  */
 	this.Ship = Ship;
 	this.Links = new Array();
 	this.FindLinks();
@@ -499,32 +540,59 @@ ShipComponent.prototype.InitStats = function(Type)
 {
 	switch(Type)
 	 {
-		case 'Room':		return {"O2": {"Level": 0.5, "Update":0.0, "Rate":0.98},
+		case 'Room':					return {"Name": "Corridor Space",
+									"O2": {"Level": 0.5, "Update":0.0, "Rate":0.98},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.0 },
 									"Heat": {"Level": 0.4, "Update": 0.0, "Rate": 0.30},
-									"Armour": 0.1, "BgImage": "url(./pix/Room.png)"}; // Internal Ship Space
+									"Armour": 0.1, "Category": "InternalSpace", "BgImage": "url(./pix/Room.png)"}; // Internal Ship Space
 
-		case 'Hull': 		return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.01},
+		case 'Hull': 					return {"Name": "Hull",
+									"O2": {"Level": 0.0, "Update":0.0, "Rate":0.01},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.0 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.80},
-									"Armour": 0.9, "BgImage": "url(./pix/Hull.png)"}; // Hull
+									"Armour": 0.9, "Category": "Hull", "BgImage": "url(./pix/Hull.png)"}; // Hull
 
-		case 'System':		return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
+		case 'System':					return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.1 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
-									"Armour": 0.1, "BgImage": "url(./pix/System.png)"}; // System
+									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/System.png)"}; // System
 
-		case 'OxygenGen': 	return {"O2": {"Level": 1.0, "Update":0.0, "Rate":0.94},
+		case 'ThermalLaser':				return {"Name": "Thermal Laser",
+									"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
+									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.4 },
+									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
+									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/ThermalLaser.png)"}; // Thermal Laser
+
+		case 'KineticProjectile':			return {"Name": "Kinetic Projectile",
+									"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
+									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.3 },
+									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
+									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/KineticProjectile.png)"}; // Kinetic Projectile
+
+		case 'EMShield':				return {"Name": "EM Shield",
+									"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
+									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.4 },
+									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
+									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/EMShield.png)"}; // Electro-Magnetic Shield (not superconducting)
+
+		case 'OxygenGen': 				return {"Name": "Oxygen Generator",
+									"O2": {"Level": 1.0, "Update":0.0, "Rate":0.94},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.05 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.60},
-									"Armour": 0.1, "BgImage": "url(./pix/OxygenGen.png)"}; // O2 generator
+									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/OxygenGen.png)"}; // O2 generator
 
-		case 'PowerSupply': return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.78},
-									"Energy": {"Level": 1.0, "Update": 0.0, "Need": 0.0 },
+		case 'PowerSupply': 				return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.78},
+									"Energy": {"Level": 1.0, "Update": 0.0, "Need": -0.4 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.60},
-									"Armour": 0.1, "BgImage": "url(./pix/PowerSupply.png)"}; // Power Unit
+									"Armour": 0.1, "Category": "PowerSupply", "BgImage": "url(./pix/PowerSupply.png)"}; // Power Unit
 
-		default: 			return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.0},
+		case 'ThoriumPS': 				return {"Name": "Thorium Power Supply",
+									"O2": {"Level": 0.0, "Update":0.0, "Rate":0.78},
+									"Energy": {"Level": 1.0, "Update": 0.0, "Need": -0.4 },
+									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.60},
+									"Armour": 0.1, "Category": "PowerSupply", "BgImage": "url(./pix/ThoriumPS.png)"}; // Thorium Power Supply
+
+		default: 					return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.0},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need":0.0 },
 									"Heat": {"Level": 0.0, "Update": 0.0, "Rate":0.0},
 									"Armour": 0.01, "BgImage": "rgb(0,0,0)"};
@@ -579,7 +647,8 @@ ShipComponent.prototype.FindCapacitorSet = function()
 
 ShipComponent.prototype.Draw = function(Fragment, i, z)
 {	
-	var Bg = this.Stats.BgImage; var MyType = '';
+	/*var Bg = this.Stats.BgImage; */var MyType = '';
+	var Bg = '';
 	if(this.Ship.ColourMap === 'none') {MyType = this.Type;}
 
 	if(this.Ship.ColourMap !== 'none' && this.Ship.ColourMap !== 'CapacitorSet') { Bg = this.ColourMapping(this.Stats[this.Ship.ColourMap].Level); } 
@@ -639,11 +708,11 @@ ShipComponent.prototype.GetLinkLoss = function(stat)
 {
 	 var Sum = 0, MyLevel =this.Stats[stat]['Level'];
 		for(var i =0, l=this.Links.length; i<l; i++) 
-			{
-				Leak = MyLevel*this.Links[i].Stats[stat]['Rate']/6;// 6 for maximum number of connections // should be 4 for 2D ships.
+			{ 
+				Leak = MyLevel*(this.Links[i].Stats[stat]['Rate']+this.Stats[stat]['Rate'])*0.5/6;// 6 for maximum number of connections // should be 4 for 2D ships.
 				this.Links[i].Stats[stat]['Update'] += Leak;
 				Sum += Leak;
-			}
+			} //console.log('temp');
 	 return Sum; 
 }
 ShipComponent.prototype.GetNoOfCapacitorConnections = function()
@@ -657,25 +726,31 @@ ShipComponent.prototype.GetNoOfCapacitorConnections = function()
 
 ShipComponent.prototype.DistributePower = function()
 { var sum =0;
-	if(this.Type == 'PowerSupply') { 
+	if(this.Stats.Category == 'PowerSupply') { 
 		for(var i = 0, l = this.Links.length; i < l; i++)
 		{
 			if(this.Links[i].CapacitorSet) 
-			{ this.Links[i].CapacitorSet.UpdateCapacitor += 0.4/ this.GetNoOfCapacitorConnections(); sum += 0.4/ this.GetNoOfCapacitorConnections(); }
+			{ this.Links[i].CapacitorSet.UpdateCapacitor -= this.Stats.Energy.Need/ this.GetNoOfCapacitorConnections(); sum += 0.4/ this.GetNoOfCapacitorConnections(); }
 		} 
 	} //console.log("Distributing: "+sum);
 }
 
 ShipComponent.prototype.UtilisePower = function(ElementNumber)
-{ var AvailableEnergy = 0;
+<<<<<<< HEAD
+{ var AvailableEnergy = 0; // this function is not written as intended - available energy should not be able to draw more power from a capacitor than exists, 
+// but it should mean that more capacitor connections means a system gets powered more effectively.
 	if(this.Type == 'System' || this.Type == 'OxygenGen') { 
+=======
+{ var AvailableEnergy = 0;
+	if(this.Stats.Category == 'System') { 
+>>>>>>> a13dfc10f2c57d86c37b7cc3abc6697973ad6beb
 		for(var i = 0, l = this.Links.length; i < l; i++)
 		{
 			if(this.Links[i].CapacitorSet) 
 			{ AvailableEnergy += this.Links[i].CapacitorSet.CurrentCapacitor; }
 		}
 		//console.log('('+ElementNumber+')'+ this.Type+' Available energy: '+Math.round(AvailableEnergy*100)+ ' Energy need '+100*this.Stats.Energy.Need);
-		if(AvailableEnergy >= 0.1)
+		if(AvailableEnergy >= this.Stats.Energy.Need)
 		{ //console.log('energy available');
 			for(var i = 0, l = this.Links.length; i < l; i++) 
 			{
