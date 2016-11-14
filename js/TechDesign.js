@@ -78,6 +78,7 @@ Technology.prototype.EnterState = function ()
 				Client.ObjDesign.ReDrawComponents();
 				Client.ObjDesign.EditMode = EditMode;
 				$("#LoadDesignFormContainer").hide(200);
+				Client.ObjDesign.DisableEditMode(Client.ObjDesign);
 				//console.log('EditMode: '+Client.ObjDesign.EditMode);
 				Client.ObjDesign.EnableEditMode(Client.ObjDesign);								
 				} 

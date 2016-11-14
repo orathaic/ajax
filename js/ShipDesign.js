@@ -199,13 +199,13 @@ ShipDesign.prototype.EnableEditMode = function(Caller)
 		Caller.EditMode = true;	
 		$('#DesignManager').hide(100);
 		$('#DesignTesting').show(100);
-		$(".DesignUnit", "#Design").attr("draggable","true");
+		$(".DesignUnit", "#Design").attr("draggable","true").hover( function(event) {Client.ObjDesign.ComponentStatsToolTip(event)}, function(event) {/*$("#ToolTip").hide(200);*/} );
 		$(".DesignUnitMenu", "#Design").on("click.design",function(event) {
 			 var TargetId = $("div#"+event.currentTarget.id+"Foldout");
 			$(".DesignUnitFoldout").not(TargetId).hide(200);		
 			TargetId.show(200); 
 			});
-
+		$(".DesignUnitFoldout").on('click.design', function(event) { $(event.currentTarget).hide(200); });
 		$(".Dragable").on('click.design', function(event){ Caller.PlaceMode(event.target.id); $("div#DesignCanvas").css("cursor", $(event.target).css("background-image")+",auto" ) } );
 		$(".Dragable").on("dragstart.design",function (event){ event.originalEvent.dataTransfer.setData("Text",event.target.id); });
 		$("#DesignCanvas").on('mousemove.design', function(event) {
@@ -256,20 +256,42 @@ ShipDesign.prototype.EnableEditMode = function(Caller)
 }
 
 ShipDesign.prototype.DisableEditMode = function(Caller) 
-{
+{ //console.log('disabling editmode');
 	Caller.EditMode = false;
 	$('#DesignTesting').hide(100);
 	$('#DesignManager').show(100);
 	$(window).off('keypress.DesignKeys');
 	$("#Technology").off("mousewheel");
-	$(".DesignUnit", "#Design").add('.ShipElement',"#DesignCanvas").attr("draggable","false");
+	$(".DesignUnit", "#Design").off("mouseenter mouseleave").add(".ShipElement","#DesignCanvas").attr("draggable","false");
 	$(".DesignUnitMenu").off('.design');
 	$(".Dragable").off('.design');
+	$(".DesignUnitFoldout").off('.design');
 	$(".DropTarget", "#Design").off(".design");
 	$("#DesignCanvas").off('mousemove.design');
 	$("div#DesignCanvas").css("cursor", "auto" ) ;
 	if( 'IntervalTimer' in window) {clearInterval(IntervalTimer); $("#TestDesign").attr("value","Test Design"); }//stop any current testing // This should not duplicate testdesign function? 
 	$('#EditDesign').attr("value", "Edit Design");
+}
+
+ShipDesign.prototype.ComponentStatsToolTip = function(event)
+{ // should get html from the server, and fill it with data once? 
+//console.log('in tooltip function');
+	var DummyCp = new ShipComponent(0,0,0, event.currentTarget.id, new ShipDesign('Dummy','public','public'));
+	var MyStats = DummyCp.InitStats(DummyCp.Type);
+//console.log(MyStats);
+
+	var ToAppend = '<span>'+MyStats.Name+':</span><span class=\'ShipElement ToolTipDataImg '+DummyCp.Type+'\' ></span>';
+		if(MyStats.Category !== 'PowerSupply')
+			{ ToAppend += '<div>Energy needs: '+ MyStats.Energy.Need+'</div>';}
+		else if(MyStats.Category === 'PowerSupply')
+			{ToAppend += '<div>Energy production: '+ (0-MyStats.Energy.Need)+'</div>';}
+
+		ToAppend += '<div>Heat Transfer Rate: '+ MyStats.Heat.Rate+'</div>'+
+		'<div>O2 Transfer Rate: '+ MyStats.O2.Rate+'</div>'+
+		'<div>Armour Amount: '+ MyStats.Armour+'</div>';
+
+	$("#ToolTipData").html(ToAppend);
+	$("#ToolTip").show(200);
 }
 
 ShipDesign.prototype.TestDesign = function(Button)
@@ -512,12 +534,14 @@ ShipComponent.prototype.InitStats = function(Type)
 {
 	switch(Type)
 	 {
-		case 'Room':					return {"O2": {"Level": 0.5, "Update":0.0, "Rate":0.98},
+		case 'Room':					return {"Name": "Corridor Space",
+									"O2": {"Level": 0.5, "Update":0.0, "Rate":0.98},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.0 },
 									"Heat": {"Level": 0.4, "Update": 0.0, "Rate": 0.30},
 									"Armour": 0.1, "Category": "InternalSpace", "BgImage": "url(./pix/Room.png)"}; // Internal Ship Space
 
-		case 'Hull': 					return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.01},
+		case 'Hull': 					return {"Name": "Hull",
+									"O2": {"Level": 0.0, "Update":0.0, "Rate":0.01},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.0 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.80},
 									"Armour": 0.9, "Category": "Hull", "BgImage": "url(./pix/Hull.png)"}; // Hull
@@ -527,22 +551,26 @@ ShipComponent.prototype.InitStats = function(Type)
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
 									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/System.png)"}; // System
 
-		case 'ThermalLaser':				return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
+		case 'ThermalLaser':				return {"Name": "Thermal Laser",
+									"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.4 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
 									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/ThermalLaser.png)"}; // Thermal Laser
 
-		case 'KineticProjectile':			return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
+		case 'KineticProjectile':			return {"Name": "Kinetic Projectile",
+									"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.3 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
 									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/KineticProjectile.png)"}; // Kinetic Projectile
 
-		case 'EMShield':				return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
+		case 'EMShield':				return {"Name": "EM Shield",
+									"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.4 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
 									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/EMShield.png)"}; // Electro-Magnetic Shield (not superconducting)
 
-		case 'OxygenGen': 				return {"O2": {"Level": 1.0, "Update":0.0, "Rate":0.94},
+		case 'OxygenGen': 				return {"Name": "Oxygen Generator",
+									"O2": {"Level": 1.0, "Update":0.0, "Rate":0.94},
 									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.05 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.60},
 									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/OxygenGen.png)"}; // O2 generator
@@ -552,7 +580,8 @@ ShipComponent.prototype.InitStats = function(Type)
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.60},
 									"Armour": 0.1, "Category": "PowerSupply", "BgImage": "url(./pix/PowerSupply.png)"}; // Power Unit
 
-		case 'ThoriumPS': 				return {"O2": {"Level": 0.0, "Update":0.0, "Rate":0.78},
+		case 'ThoriumPS': 				return {"Name": "Thorium Power Supply",
+									"O2": {"Level": 0.0, "Update":0.0, "Rate":0.78},
 									"Energy": {"Level": 1.0, "Update": 0.0, "Need": -0.4 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.60},
 									"Armour": 0.1, "Category": "PowerSupply", "BgImage": "url(./pix/ThoriumPS.png)"}; // Thorium Power Supply
@@ -612,7 +641,8 @@ ShipComponent.prototype.FindCapacitorSet = function()
 
 ShipComponent.prototype.Draw = function(Fragment, i, z)
 {	
-	var Bg = this.Stats.BgImage; var MyType = '';
+	/*var Bg = this.Stats.BgImage; */var MyType = '';
+	var Bg = '';
 	if(this.Ship.ColourMap === 'none') {MyType = this.Type;}
 
 	if(this.Ship.ColourMap !== 'none' && this.Ship.ColourMap !== 'CapacitorSet') { Bg = this.ColourMapping(this.Stats[this.Ship.ColourMap].Level); } 
@@ -672,11 +702,11 @@ ShipComponent.prototype.GetLinkLoss = function(stat)
 {
 	 var Sum = 0, MyLevel =this.Stats[stat]['Level'];
 		for(var i =0, l=this.Links.length; i<l; i++) 
-			{
-				Leak = MyLevel*this.Links[i].Stats[stat]['Rate']/6;// 6 for maximum number of connections // should be 4 for 2D ships.
+			{ 
+				Leak = MyLevel*(this.Links[i].Stats[stat]['Rate']+this.Stats[stat]['Rate'])*0.5/6;// 6 for maximum number of connections // should be 4 for 2D ships.
 				this.Links[i].Stats[stat]['Update'] += Leak;
 				Sum += Leak;
-			}
+			} //console.log('temp');
 	 return Sum; 
 }
 ShipComponent.prototype.GetNoOfCapacitorConnections = function()
@@ -708,7 +738,7 @@ ShipComponent.prototype.UtilisePower = function(ElementNumber)
 			{ AvailableEnergy += this.Links[i].CapacitorSet.CurrentCapacitor; }
 		}
 		//console.log('('+ElementNumber+')'+ this.Type+' Available energy: '+Math.round(AvailableEnergy*100)+ ' Energy need '+100*this.Stats.Energy.Need);
-		if(AvailableEnergy >= 0.1)
+		if(AvailableEnergy >= this.Stats.Energy.Need)
 		{ //console.log('energy available');
 			for(var i = 0, l = this.Links.length; i < l; i++) 
 			{

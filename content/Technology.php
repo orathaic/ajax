@@ -94,7 +94,7 @@ class Technology extends content
 			$SysFoldOut->addchild('div')->addattr("class","DesignUnit Inline-Block Dragable ThermalLaser")->addattr("id","ThermalLaser")->addattr("draggable","false");
 			$SysFoldOut->addchild('div')->addattr("class","DesignUnit Inline-Block Dragable KineticProjectile")->addattr("id","KineticProjectile")->addattr("draggable","false");
 			$SysFoldOut->addchild('div')->addattr("class","DesignUnit Inline-Block Dragable EMShield")->addattr("id","EMShield")->addattr("draggable","false");
-
+			
 		$ColumnleftNode->addchild('div')->addattr("class","DesignUnitMenu System")->addattr("id","System")->addattr("draggable","false");
 		$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable OxygenGen")->addattr("id","OxygenGen")->addattr("draggable","false");
 
@@ -103,6 +103,10 @@ class Technology extends content
 
 		$ColumnleftNode->addchild('div')->addattr("class","DesignUnitMenu PowerSupply")->addattr("id","PowerSupply")->addattr("draggable","false");
 		$ColumnleftNode->addchild('div')->addattr("class","DesignUnit Dragable RubbishBin")->addattr("id","RubbishBin")->addattr("draggable","false");
+
+		$ToolTip = &$Node->addchild("div")->addattr("id","ToolTip")->addattr("class","hidden");
+			$ToolTip->addchild("div")->addtext("X")->addattr("class","CloseButton");
+			$ToolTip->addchild("div")->addattr("id","ToolTipData");
 
 	$DesignNode->addchild("div")->addattr("class","hidden")->addattr("id","SimData");
 	$DesignNode->addchild("div")->addattr("class","DropTarget")->addattr("id","DesignCanvas");
