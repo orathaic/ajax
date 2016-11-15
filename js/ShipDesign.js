@@ -399,7 +399,7 @@ ShipDesign.prototype.Simulate = function()
 	AvgText += ' Avg Heat lvl: ' + Math.round(AverageHeat*100)+'%'
 	AvgText += ' Sys Active: '+this.SystemsActive + '/' + TotalSystems;
 	$('#SimData').text(AvgText);
-		var CapPercentage = Math.round(CapTotals.CurrentLvl / CapTotals.MaxLvl );
+		var CapPercentage = CapTotals.CurrentLvl / CapTotals.MaxLvl;
 	$('#MeterMask').height( (1 - CapPercentage) * 76);
 	this.ReDrawComponents();
 }
@@ -553,19 +553,19 @@ ShipComponent.prototype.InitStats = function(Type)
 
 		case 'ThermalLaser':				return {"Name": "Thermal Laser",
 									"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
-									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.4 },
+									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.04 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
 									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/ThermalLaser.png)"}; // Thermal Laser
 
 		case 'KineticProjectile':			return {"Name": "Kinetic Projectile",
 									"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
-									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.3 },
+									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.03 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
 									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/KineticProjectile.png)"}; // Kinetic Projectile
 
 		case 'EMShield':				return {"Name": "EM Shield",
 									"O2": {"Level": 0.0, "Update":0.0, "Rate":0.88},
-									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.4 },
+									"Energy": {"Level": 0.0, "Update": 0.0, "Need": 0.04 },
 									"Heat": {"Level": 0.2, "Update": 0.0, "Rate": 0.50},
 									"Armour": 0.1, "Category": "System", "BgImage": "url(./pix/EMShield.png)"}; // Electro-Magnetic Shield (not superconducting)
 
@@ -647,7 +647,7 @@ ShipComponent.prototype.Draw = function(Fragment, i, z)
 
 	if(this.Ship.ColourMap !== 'none' && this.Ship.ColourMap !== 'CapacitorSet') { Bg = this.ColourMapping(this.Stats[this.Ship.ColourMap].Level); } 
 
-	if(this.Ship.ColourMap === 'Energy' && this.Type == 'Hull') { Bg = this.ColourMapping(this.CapacitorSet.CurrentCapacitor);  } // overwrites the default colouring for capacitors.
+	if(this.Ship.ColourMap === 'Energy' && this.Type == 'Hull') { Bg = this.ColourMapping(this.CapacitorSet.CurrentCapacitor/ this.CapacitorSet.MaxCapacitor);  } // overwrites the default colouring for capacitors.
 
 	if(this.Ship.ColourMap === 'CapacitorSet' && this.Type == 'Hull') { Bg = this.CapMapping(this.Ship.CapacitorSets.indexOf(this.CapacitorSet)); }
 //console.log(Bg);
